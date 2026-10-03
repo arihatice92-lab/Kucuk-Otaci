@@ -1,28 +1,19 @@
 using UnityEngine;
 
-// LLM'den dönecek karar durumları 
-public enum GateDecision
-{
-    Undecided,
-    Denied,
-    Open
-}
-
 public class NpcInteractionTrigger : MonoBehaviour
 {
     [Header("Referanslar")]
-    [Tooltip("Açılacak köy kapısının VillageGate bileşeni")]
     [SerializeField] private VillageGate villageGate;
+    [SerializeField] private OllamaClient ollamaClient;
 
-    private bool playerInRange = false;
+    private bool isPlayerInRange = false;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Oyuncunun Basri Amca'nın alanına girip girmediğini kontrol et
         if (other.CompareTag("Player"))
         {
-            playerInRange = true;
-            Debug.Log("[Basri Amca] Oyuncu yaklaştı. Konuşma başlatılabilir.");
+            isPlayerInRange = true;
+            Debug.Log("[Basri Amca]: Yanıma birisi geldi. Konuşmak için mesaj gönderebilirsin.");
         }
     }
 
@@ -30,30 +21,58 @@ public class NpcInteractionTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerInRange = false;
-            Debug.Log("[Basri Amca] Oyuncu alandan uzaklaştı.");
+            isPlayerInRange = false;
+            Debug.Log("[Basri Amca]: Oyuncu uzaklaştı.");
         }
     }
 
-    // LLM'den "Open" kararı geldiğinde arkadaşının UI/LLM sistemi doğrudan bu metodu çağıracak
-    public void HandleDecision(GateDecision decision)
+    // Basri Amca ile konuşma fonksiyonu (UI veya test için çağrılır)
+    public void TalkToBasri(string playerMessage)
     {
-        if (decision == GateDecision.Open)
+        if (ollamaClient == null)
         {
-            if (villageGate != null)
-            {
-                villageGate.OpenGate();
-            }
-            else
-            {
-                Debug.LogWarning("[Basri Amca] VillageGate referansı atanmamış!");
-            }
+            Debug.LogError("OllamaClient atanmamış!");
+            return;
+        }
+
+        Debug.Log($"[Oyuncu -> Basri Amca]: {playerMessage}");
+
+        // Ollama'ya asenkron istek atılıyor
+        StartCoroutine(ollamaClient.Send(playerMessage, OnNpcResponseReceived));
+    }
+
+    // Ollama'dan gelen cevabın işlendiği yer
+    private void OnNpcResponseReceived(NpcResult result)
+    {
+        if (result == null || !result.Success)
+        {
+            Debug.LogWarning("[Basri Amca]: " + (result != null ? result.Dialogue : "Cevap alınamadı."));
+            return;
+        }
+
+        // Konsola Basri Amca'nın cevabını ve ruh halini yazdır
+        Debug.Log($"[Basri Amca ({result.Mood})]: {result.Dialogue}");
+
+        // LLM kararına göre aksiyon al
+        switch (result.Decision)
+        {
+            case NpcDecision.OpenGate:
+                Debug.Log("[Sistem]: Basri Amca ikna oldu! Kapı açılıyor...");
+                if (villageGate != null)
+                {
+                    villageGate.OpenGate();
+                }
+                break;
+
+            case NpcDecision.Refuse:
+                Debug.Log("[Sistem]: Basri Amca kapıyı açmayı kesin bir dille reddetti.");
+                break;
+
+            case NpcDecision.AskMore:
+                Debug.Log("[Sistem]: Basri Amca henüz ikna olmadı, daha fazla bilgi istiyor.");
+                break;
         }
     }
 
-    // Oyuncunun şu an konuşma mesafesinde olup olmadığını dışarıya bildirir
-    public bool IsPlayerInRange()
-    {
-        return playerInRange;
-    }
+    public bool IsPlayerInRange() => isPlayerInRange;
 }
