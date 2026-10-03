@@ -38,7 +38,20 @@ private string systemPrompt =
     private readonly List<ChatMessage> history = new List<ChatMessage>();
 
     public void ResetConversation() => history.Clear();
-
+    // Modeli önceden belleğe yükler; ilk gerçek cevap gecikmesin diye
+    public IEnumerator Warmup()
+    {
+        string body = "{\"model\":\"" + Escape(model) + "\",\"keep_alive\":\"30m\"}";
+        using (var req = new UnityWebRequest(baseUrl + "/api/generate", "POST"))
+        {
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.SetRequestHeader("Content-Type", "application/json");
+            req.timeout = 60;
+            yield return req.SendWebRequest();
+            // Hata olsa da önemli değil, gerçek istek hatayı zaten yönetiyor
+        }
+    }
     public IEnumerator Send(string userMessage, Action<NpcResult> onDone)
     {
         history.Add(new ChatMessage("user", userMessage));
