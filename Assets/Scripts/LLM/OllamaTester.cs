@@ -29,7 +29,7 @@ public class OllamaTester : MonoBehaviour
                 Debug.LogWarning($"[OllamaTester] HATA: {result.Error} (Süre: {sure:F1} sn)");
                 return;
             }
-
+            result = NpcDecisionValidator.Validate(testMessage, result);
             Debug.Log($"[OllamaTester] Karar: {result.Decision} | Ruh Hali: {result.Mood} | Diyalog: {result.Dialogue} | Süre: {sure:F1} sn");
 
             if (result.Decision == NpcDecision.OpenGate)

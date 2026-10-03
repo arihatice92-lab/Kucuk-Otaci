@@ -60,6 +60,7 @@ public class DialogueManager : MonoBehaviour
 
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
+        result = NpcDecisionValidator.Validate(text, result);
 
         npcText.text = result.Dialogue;
         npcController.Handle(result);
