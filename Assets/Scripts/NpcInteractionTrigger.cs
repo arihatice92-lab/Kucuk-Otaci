@@ -28,7 +28,13 @@ public class NpcInteractionTrigger : MonoBehaviour
 
     // Basri Amca ile konuşma fonksiyonu (UI veya test için çağrılır)
     public void TalkToBasri(string playerMessage)
-    {
+    {   
+        if (!isPlayerInRange)
+{
+       Debug.LogWarning("[Basri Amca]: Konuşmak için daha yakına gelmelisin.");
+           return;
+}
+
         if (ollamaClient == null)
         {
             Debug.LogError("OllamaClient atanmamış!");
