@@ -60,7 +60,29 @@ public class DialogueManager : MonoBehaviour
 
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
+
         result = NpcDecisionValidator.Validate(text, result);
+
+        // Unity kararı değiştirdiyse cümleyi LLM yeniden üretsin (hazır cümle yok)
+        if (result.Success && result.DecisionOverridden)
+        {
+            NpcDecision finalDecision = result.Decision;
+            NpcMood finalMood = result.Mood;
+
+            NpcResult regenerated = null;
+            yield return client.Regenerate(text, finalDecision, r => regenerated = r);
+
+            if (regenerated != null && regenerated.Success)
+            {
+                regenerated.Decision = finalDecision;
+                regenerated.Mood = finalMood;
+                result = regenerated;
+            }
+            else
+            {
+                result = NpcResult.Fail("Cümle yeniden üretilemedi");
+            }
+        }
 
         npcText.text = result.Dialogue;
         npcController.Handle(result);

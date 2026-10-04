@@ -21,6 +21,8 @@ public class NpcResult
     public string Dialogue;
     public string Error;
 
+    public bool DecisionOverridden;   // Unity LLM'in kararını değiştirdi mi
+
     public static NpcResult Fail(string error) => new NpcResult
     {
         Success = false,
