@@ -52,6 +52,25 @@ Oyuncunun topladığı otlar ve hayvana yardım edip etmediği gibi bilgiler Uni
 12. Unity geçerli yanıta göre kapıyı açar, ek konuşma başlatır veya geçici ret durumunu uygular.
 13. Kapı açılırsa oyuncu Hasat Şenliği alanına ulaşır ve oyun tamamlanır.
 
+## Oyun Durumu ve Kararların Doğrulanması
+
+Oyunun önemli durumları Unity tarafından tutulur. Bu sayede yerel LLM, oyuncunun oyun içindeki davranışlarını tahmin etmek yerine gerçek oyun verilerini bağlam olarak alır.
+
+Örnek oyun durumları:
+
+- `waterDrained`: Vana etkinleştirilip suyun çekilip çekilmediği
+- `treeCleared`: Devrilen ağacın kaldırılıp kaldırılmadığı
+- `animalHelped`: Oyuncunun yardıma ihtiyacı olan hayvana yardım edip etmediği
+- `collectedHerbs`: Oyuncunun topladığı şifalı otlar
+
+Basri Amca'nın yerel LLM tarafından üretilen yanıtı, `dialogue`, `decision` ve `mood` alanlarını içerir. Unity yalnızca izin verilen kararları kabul eder:
+
+- `OPEN_GATE`: Köy kapısı açılır.
+- `ASK_MORE`: Basri Amca ek bilgi ister ve diyalog devam eder.
+- `REFUSE`: Basri Amca oyuncuyla geçici olarak konuşmayı reddeder.
+
+Beklenmeyen kararlar, boş yanıtlar veya geçersiz JSON verileri oyun durumunu değiştirmez. Bu durumlarda kullanıcıya anlamlı bir hata mesajı gösterilir ve oyun çalışmaya devam eder.
+
 ## Kullanılan Teknolojiler
 
 - Unity
