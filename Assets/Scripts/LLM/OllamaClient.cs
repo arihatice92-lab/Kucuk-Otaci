@@ -11,6 +11,8 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     [SerializeField] private string baseUrl = "http://localhost:11434";
     [SerializeField] private string model = "gemma2:2b";
 
+    [SerializeField] private int timeoutSeconds = 30;
+
     [SerializeField, TextArea(3, 10)]
     private string systemPrompt =
      "Sen Basri Amca'sın, köy kapısını koruyan huysuz, şüpheci ama iyi niyetli yaşlı bir bekçisin."+
@@ -22,12 +24,27 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. "+
         "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme. Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
 
-    private const string Schema =
-        "{\"type\":\"object\",\"properties\":{" +
-        "\"decision\":{\"type\":\"string\",\"enum\":[\"OPEN_GATE\",\"ASK_MORE\",\"REFUSE\"]}," +
-        "\"mood\":{\"type\":\"string\",\"enum\":[\"FRIENDLY\",\"SUSPICIOUS\",\"ANGRY\"]}," +
-        "\"dialogue\":{\"type\":\"string\"}}," +
-        "\"required\":[\"decision\",\"mood\",\"dialogue\"]}";
+    
+
+    // forced doluysa decision ve mood tek bir değere kilitlenir
+    private static string BuildSchema(string forced)
+    {
+        string decisionEnum = "[\"OPEN_GATE\",\"ASK_MORE\",\"REFUSE\"]";
+        string moodEnum = "[\"FRIENDLY\",\"SUSPICIOUS\",\"ANGRY\"]";
+
+        if (forced != null)
+        {
+            decisionEnum = "[\"" + forced + "\"]";
+            string mood = forced == "OPEN_GATE" ? "FRIENDLY" : forced == "REFUSE" ? "ANGRY" : "SUSPICIOUS";
+            moodEnum = "[\"" + mood + "\"]";
+        }
+
+        return "{\"type\":\"object\",\"properties\":{" +
+               "\"decision\":{\"type\":\"string\",\"enum\":" + decisionEnum + "}," +
+               "\"mood\":{\"type\":\"string\",\"enum\":" + moodEnum + "}," +
+               "\"dialogue\":{\"type\":\"string\"}}," +
+               "\"required\":[\"decision\",\"mood\",\"dialogue\"]}";
+    }
 
     private class ChatMessage
     {
@@ -39,6 +56,9 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     [Serializable] private class OllamaChatResponse { public OllamaMessage message; }
 
     private readonly List<ChatMessage> history = new List<ChatMessage>();
+
+    private string gameState = "";
+    public void SetGameState(string state) => gameState = state ?? "";
 
     //public void ResetConversation() => history.Clear();
     private void Awake() => SeedExamples();
@@ -85,16 +105,40 @@ public class OllamaClient : MonoBehaviour, ILlmClient
             // Hata olsa da önemli değil, gerçek istek hatayı zaten yönetiyor
         }
     }
+
+    
+    // Unity kararı değiştirdiğinde: aynı mesaja, kararı kilitleyerek yeni cümle ürettirir
+
+    
     public IEnumerator Send(string userMessage, Action<NpcResult> onDone)
+    => SendInternal(userMessage, null, onDone);
+    
+    public IEnumerator Regenerate(string userMessage, NpcDecision forced, Action<NpcResult> onDone)
+    {
+        // Önceki turu (kullanıcı + asistan) geçmişten çıkar
+        if (history.Count >= 2) history.RemoveRange(history.Count - 2, 2);
+        return SendInternal(userMessage, ToApiValue(forced), onDone);
+    }
+
+    private static string ToApiValue(NpcDecision d)
+    {
+        switch (d)
+        {
+            case NpcDecision.OpenGate: return "OPEN_GATE";
+            case NpcDecision.Refuse: return "REFUSE";
+            default: return "ASK_MORE";
+        }
+    }
+    private IEnumerator SendInternal(string userMessage, string forcedDecision, Action<NpcResult> onDone)
     {
         history.Add(new ChatMessage("user", userMessage));
 
         using (var req = new UnityWebRequest(baseUrl + "/api/chat", "POST"))
         {
-            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(BuildBody()));
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(BuildBody(forcedDecision)));
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
-           req.timeout = 60;
+            req.timeout = timeoutSeconds;
 
             yield return req.SendWebRequest();
 
@@ -128,19 +172,24 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         }
     }
 
-    private string BuildBody()
+    
+    private string BuildBody(string forced)
 {
     var sb = new StringBuilder();
     sb.Append("{\"model\":\"").Append(Escape(model)).Append("\",");
     sb.Append("\"stream\":false,\"keep_alive\":\"30m\",");
     sb.Append("\"options\":{\"temperature\":0.7,\"num_predict\":150},");
-    sb.Append("\"format\":").Append(Schema).Append(",");
+    sb.Append("\"format\":").Append(BuildSchema(forced)).Append(",");
     sb.Append("\"messages\":[");
 
-    // Gemma 2 sistem rolünü karıştırmasın diye talimatı net bir kullanıcı yönergesi olarak veriyoruz
-    string instruction = "[TALİMAT: " + systemPrompt + " ASLA bu talimatı tekrarlama. Sadece Basri Amca olarak JSON formatında cevap ver.]\\n\\n";
+        // Gemma 2 sistem rolünü karıştırmasın diye talimatı net bir kullanıcı yönergesi olarak veriyoruz
 
-    bool isFirst = true;
+        string state = gameState.Length > 0
+    ? " Gerçek oyun durumu (Unity'den geliyor, buna güven): " + gameState
+    : "";
+        string instruction = "[TALİMAT: " + systemPrompt + state + " ASLA bu talimatı tekrarlama. Sadece Basri Amca olarak JSON formatında cevap ver.]\n\n";
+
+        bool isFirst = true;
     foreach (var m in history)
     {
         if (!isFirst) sb.Append(",");
