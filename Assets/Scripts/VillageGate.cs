@@ -7,13 +7,31 @@ public class VillageGate : MonoBehaviour, IInteractable
     [Tooltip("Kapı açıldığında yukarı kalkacağı mesafe")]
     [SerializeField] private Vector3 openOffset = new Vector3(0, 4f, 0);
     [SerializeField] private float openSpeed = 2f;
+    
+    [SerializeField] private NpcController npcController;
+
 
     public string InteractionPrompt => "Köy Kapısı";
 
     private bool isOpening = false;
     private Vector3 targetPosition;
+ 
+    private void OnEnable()
+{
+    if (npcController != null)
+    {
+        npcController.OnGateShouldOpen += OpenGate;
+    }
+}
 
-    private void Start()
+     private void OnDisable()
+{
+    if (npcController != null)
+    {
+        npcController.OnGateShouldOpen -= OpenGate;
+    }
+}
+     private void Start()
     {
         targetPosition = transform.position + openOffset;
     }
@@ -33,10 +51,9 @@ public class VillageGate : MonoBehaviour, IInteractable
     }
 
     public void Interact()
-    {
-        OpenGate();
-    }
-
+{
+    Debug.Log("[VillageGate] Kapı kilitli. Basri Amca ile konuşmalısın.");
+}
     public void OpenGate()
     {
         if (!isOpening)
