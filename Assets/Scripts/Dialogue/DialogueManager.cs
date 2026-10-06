@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
-{
-    [Header("UI (arkadaşın kuracak)")]
+{    [Header("UI")]
     [SerializeField] private TMP_Text npcText;
     [SerializeField] private TMP_InputField playerInput;
     [SerializeField] private Button sendButton;
@@ -14,6 +13,9 @@ public class DialogueManager : MonoBehaviour
     [Header("Bağlantılar")]
     [SerializeField] private OllamaClient client;
     [SerializeField] private NpcController npcController;
+
+    [Header("Görevler")]
+    [SerializeField] private QuestManager quests;
 
     private bool isWaiting;
 
