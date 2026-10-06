@@ -60,10 +60,20 @@ public class DialogueManager : MonoBehaviour
         SetWaiting(true);
         playerInput.text = "";
 
+        // Geçici oyun durumu
+        //client.SetGameState("Oyuncunun envanterinde şifalı ot yok. Kapı kapalı.");
+        client.SetGameState(quests.BuildStatusForPrompt());
+
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
 
-        result = NpcDecisionValidator.Validate(text, result);
+        //result = NpcDecisionValidator.Validate(text, result);
+            result = NpcDecisionValidator.Validate(
+            text,
+            result,
+            true,
+            quests.AllCompleted
+        );
 
         // Unity kararı değiştirdiyse cümleyi LLM yeniden üretsin (hazır cümle yok)
         if (result.Success && result.DecisionOverridden)
@@ -78,6 +88,7 @@ public class DialogueManager : MonoBehaviour
             {
                 regenerated.Decision = finalDecision;
                 regenerated.Mood = finalMood;
+                regenerated.Validated = true;
                 result = regenerated;
             }
             else
