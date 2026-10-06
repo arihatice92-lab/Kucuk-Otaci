@@ -18,7 +18,7 @@ public static class NpcDecisionValidator
     
 
     // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
-    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true)
+    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsCompleted = true)
     {
         if (result == null || !result.Success) return result;
 
@@ -32,7 +32,7 @@ public static class NpcDecisionValidator
             final = NpcDecision.Refuse;
         else if (final == NpcDecision.Refuse)
             final = NpcDecision.AskMore;               // kaba değil, ceza yok
-        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs))
+        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs && questsCompleted))
             final = NpcDecision.AskMore;               // gerekçe yok, kapı açılmaz
 
         if (final != result.Decision)
@@ -42,7 +42,7 @@ public static class NpcDecisionValidator
             result.Mood = final == NpcDecision.Refuse ? NpcMood.Angry : NpcMood.Suspicious;
             result.DecisionOverridden = true;   // cümleyi LLM yeniden üretecek
         }
-
+        result.Validated = true;
         return result;
     }
 

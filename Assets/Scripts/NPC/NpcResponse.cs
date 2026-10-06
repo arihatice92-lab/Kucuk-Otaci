@@ -20,6 +20,7 @@ public class NpcResult
     public NpcMood Mood;
     public string Dialogue;
     public string Error;
+    public bool Validated;   // Validator'dan geçti mi
 
     public bool DecisionOverridden;   // Unity LLM'in kararını değiştirdi mi
 
