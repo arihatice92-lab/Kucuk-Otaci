@@ -57,16 +57,20 @@ public class DialogueManager : MonoBehaviour
     {
         SetWaiting(true);
         playerInput.text = "";
+        float start = Time.realtimeSinceStartup;
 
         // Geçici oyun durumu
         //client.SetGameState("Oyuncunun envanterinde şifalı ot yok. Kapı kapalı.");
         client.SetGameState(quests.BuildStatusForPrompt());
 
+        
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
 
+        NpcDecision hamKarar = result.Decision;
+        bool yenidenUretildi = false;
         //result = NpcDecisionValidator.Validate(text, result);
-            result = NpcDecisionValidator.Validate(
+        result = NpcDecisionValidator.Validate(
             text,
             result,
             true,
@@ -88,13 +92,15 @@ public class DialogueManager : MonoBehaviour
                 regenerated.Mood = finalMood;
                 regenerated.Validated = true;
                 result = regenerated;
+                yenidenUretildi = true;
             }
             else
             {
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
-
+        Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
+                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog: {result.Dialogue}");
         npcText.text = result.Dialogue;
         npcController.Handle(result);
 
