@@ -16,6 +16,11 @@ public static class NpcDecisionValidator
     // hasHerbs: envanter/bitki durumu
     // questsDone: önceki görevlerin tamamlanma durumu
    // questsDone varsayılan olarak false olmalı (bilgi verilmezse kapı açılmasın)
+    
+
+    
+
+    // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
     public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = true)
     {
         if (result == null || !result.Success) return result;

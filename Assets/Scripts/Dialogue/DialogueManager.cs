@@ -13,6 +13,8 @@ public class DialogueManager : MonoBehaviour
     [Header("Bağlantılar")]
     [SerializeField] private OllamaClient client;
     [SerializeField] private NpcController npcController;
+
+    [Header("Görevler")]
     [SerializeField] private QuestManager quests;
 
     private bool isWaiting;
