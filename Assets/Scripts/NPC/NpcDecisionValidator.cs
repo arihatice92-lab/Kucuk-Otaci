@@ -13,6 +13,9 @@ public static class NpcDecisionValidator
         { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı",
           "kes sesini", "uğraşamam", "fena olur" };
 
+    // hasHerbs: envanter/bitki durumu
+    // questsDone: önceki görevlerin tamamlanma durumu
+   // questsDone varsayılan olarak false olmalı (bilgi verilmezse kapı açılmasın)
     
 
     
