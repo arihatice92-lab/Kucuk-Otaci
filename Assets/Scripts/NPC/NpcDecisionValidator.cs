@@ -32,8 +32,8 @@ public static class NpcDecisionValidator
             final = NpcDecision.Refuse;
         else if (final == NpcDecision.Refuse)
             final = NpcDecision.AskMore;               // kaba değil, ceza yok
-        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs && questsCompleted))
-            final = NpcDecision.AskMore;               // gerekçe yok, kapı açılmaz
+        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs && questsDone))
+            final = NpcDecision.AskMore;               // gerekçe veya görevler eksikse kapı açılmaz
 
         if (final != result.Decision)
         {
@@ -45,7 +45,6 @@ public static class NpcDecisionValidator
         result.Validated = true;
         return result;
     }
-
 
     private static bool ContainsAny(string text, string[] keywords)
     {
