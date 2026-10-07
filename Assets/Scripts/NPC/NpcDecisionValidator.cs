@@ -18,7 +18,7 @@ public static class NpcDecisionValidator
     
 
     // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
-    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = true)
+    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = false)
     {
         if (result == null || !result.Success) return result;
 
