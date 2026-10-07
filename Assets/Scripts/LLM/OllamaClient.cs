@@ -143,6 +143,8 @@ public class OllamaClient : MonoBehaviour, ILlmClient
             yield return req.SendWebRequest();
 
            // Gelen cevabı ham haliyle görmek için:
+           // Gelen cevabı ve hata durumunu tam görmek için:
+            Debug.Log($"[OllamaClient Status]: Result={req.result}, Code={req.responseCode}, Error={req.error}");
             Debug.Log("[OllamaClient Raw Response]: " + req.downloadHandler.text);
             if (req.result != UnityWebRequest.Result.Success)
             {
