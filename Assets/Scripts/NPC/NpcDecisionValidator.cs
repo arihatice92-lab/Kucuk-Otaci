@@ -16,7 +16,7 @@ public static class NpcDecisionValidator
     // hasHerbs: envanter/bitki durumu
     // questsDone: önceki görevlerin tamamlanma durumu
    // questsDone varsayılan olarak false olmalı (bilgi verilmezse kapı açılmasın)
-    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = false)
+    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = true)
     {
         if (result == null || !result.Success) return result;
 
@@ -40,7 +40,7 @@ public static class NpcDecisionValidator
             result.Mood = final == NpcDecision.Refuse ? NpcMood.Angry : NpcMood.Suspicious;
             result.DecisionOverridden = true;   // cümleyi LLM yeniden üretecek
         }
-
+        result.Validated = true;
         return result;
     }
 
