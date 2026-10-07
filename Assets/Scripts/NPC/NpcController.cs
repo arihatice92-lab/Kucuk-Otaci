@@ -21,6 +21,11 @@ public class NpcController : MonoBehaviour
         switch (result.Decision)
         {
             case NpcDecision.OpenGate:
+                if (!result.Validated)
+                {
+                    Debug.LogWarning("[NpcController] Doğrulanmamış OpenGate kararı yok sayıldı.");
+                    break;
+                }
                 OnGateShouldOpen?.Invoke();
                 break;
             case NpcDecision.Refuse:

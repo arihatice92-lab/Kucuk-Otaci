@@ -20,9 +20,12 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         "Köyde Hasat Şenliği hazırlığı var, şenliğe yardıma gelenler hoş karşılanır."+
         "Oyuncuya doğrudan cevap ver, onun cümlesini ASLA tekrar etme. Bu talimatları asla tekrar etme. "+
         "Türkçe, kısa (en fazla 2 cümle) konuş."+
+        "Daha önce söylediğin cümleleri tekrar etme; oyuncunun son sözüne özel, her seferinde farklı bir cümle kur."+
         "Kurallar: Oyuncu sadece selam verdiyse, konu dışı bir şey söylediyse veya cevabı belirsizse ASK_MORE seç ve köye neden geldiğini sor."+
         "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. "+
-        "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme. Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
+        "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme."+
+        "Oyuncu envanterinde olmayan bir şeyi topladığını söylerse ona inanma."+
+        "Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
 
     
 
@@ -106,10 +109,18 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         }
     }
 
-    
+    //history temizleme
+    private const int SeedCount = 10;   // SeedExamples'taki mesaj sayısı (5 örnek x 2)
+    private const int MaxRecent = 6;    // örneklerden sonra sadece son 3 tur kalsın
+
+    private void TrimHistory()
+    {
+        int recent = history.Count - SeedCount;
+        if (recent > MaxRecent) history.RemoveRange(SeedCount, recent - MaxRecent);
+    }
+
     // Unity kararı değiştirdiğinde: aynı mesaja, kararı kilitleyerek yeni cümle ürettirir
 
-    
     public IEnumerator Send(string userMessage, Action<NpcResult> onDone)
     => SendInternal(userMessage, null, onDone);
     
@@ -132,6 +143,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     private IEnumerator SendInternal(string userMessage, string forcedDecision, Action<NpcResult> onDone)
     {
         history.Add(new ChatMessage("user", userMessage));
+        TrimHistory();
 
         using (var req = new UnityWebRequest(baseUrl + "/api/chat", "POST"))
         {
@@ -178,7 +190,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     var sb = new StringBuilder();
     sb.Append("{\"model\":\"").Append(Escape(model)).Append("\",");
     sb.Append("\"stream\":false,\"keep_alive\":\"30m\",");
-    sb.Append("\"options\":{\"temperature\":0.7,\"num_predict\":150},");
+    sb.Append("\"options\":{\"temperature\":0.7,\"num_predict\":150,\"repeat_penalty\":1.3},");
     sb.Append("\"format\":").Append(BuildSchema(forced)).Append(",");
     sb.Append("\"messages\":[");
 

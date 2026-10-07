@@ -13,9 +13,12 @@ public static class NpcDecisionValidator
         { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı",
           "kes sesini", "uğraşamam", "fena olur" };
 
-    // hasHerbs: envanter/bitki durumu
-    // questsDone: önceki görevlerin tamamlanma durumu
-    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = true)
+    
+
+    
+
+    // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
+    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsCompleted = true)
     {
         if (result == null || !result.Success) return result;
 
@@ -39,7 +42,7 @@ public static class NpcDecisionValidator
             result.Mood = final == NpcDecision.Refuse ? NpcMood.Angry : NpcMood.Suspicious;
             result.DecisionOverridden = true;   // cümleyi LLM yeniden üretecek
         }
-
+        result.Validated = true;
         return result;
     }
 

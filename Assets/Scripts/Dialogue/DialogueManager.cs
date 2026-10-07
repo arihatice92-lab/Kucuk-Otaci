@@ -13,8 +13,6 @@ public class DialogueManager : MonoBehaviour
     [Header("Bağlantılar")]
     [SerializeField] private OllamaClient client;
     [SerializeField] private NpcController npcController;
-
-    [Header("Görevler")]
     [SerializeField] private QuestManager quests;
 
     private bool isWaiting;
@@ -59,11 +57,25 @@ public class DialogueManager : MonoBehaviour
     {
         SetWaiting(true);
         playerInput.text = "";
+        float start = Time.realtimeSinceStartup;
 
+        // Geçici oyun durumu
+        //client.SetGameState("Oyuncunun envanterinde şifalı ot yok. Kapı kapalı.");
+        client.SetGameState(quests.BuildStatusForPrompt());
+
+        
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
 
-        result = NpcDecisionValidator.Validate(text, result);
+        NpcDecision hamKarar = result.Decision;
+        bool yenidenUretildi = false;
+        //result = NpcDecisionValidator.Validate(text, result);
+        result = NpcDecisionValidator.Validate(
+            text,
+            result,
+            true,
+            quests.AllCompleted
+        );
 
         // Unity kararı değiştirdiyse cümleyi LLM yeniden üretsin (hazır cümle yok)
         if (result.Success && result.DecisionOverridden)
@@ -78,14 +90,17 @@ public class DialogueManager : MonoBehaviour
             {
                 regenerated.Decision = finalDecision;
                 regenerated.Mood = finalMood;
+                regenerated.Validated = true;
                 result = regenerated;
+                yenidenUretildi = true;
             }
             else
             {
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
-
+        Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
+                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog: {result.Dialogue}");
         npcText.text = result.Dialogue;
         npcController.Handle(result);
 
