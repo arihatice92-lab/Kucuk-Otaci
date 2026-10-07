@@ -4,12 +4,12 @@ using UnityEngine.InputSystem;
 // GEÇİCİ test aracı: gerçek görev mekanikleri yazılana kadar görevleri tuşla tamamlar.
 // F1 köprü, F2 yılan, F3 çöp, F4 kedi.
 // (Sayı tuşlarını kullanmadık, çünkü diyalog kutusuna yazı yazarken tetiklenirdi.)
-// Sadece Editor'de ve Development build'de çalışır; final build'de etkisizdir.
+// Sadece Unity Editor'de çalışır; build'de etkisizdir.
 public class QuestDebugKeys : MonoBehaviour
 {
     [SerializeField] private QuestManager quests;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR
     private void Update()
     {
         Keyboard kb = Keyboard.current;

@@ -13,12 +13,9 @@ public static class NpcDecisionValidator
         { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı",
           "kes sesini", "uğraşamam", "fena olur" };
 
-    
-
-    
-
-    // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
-    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true)
+    // hasHerbs: envanter/bitki durumu
+    // questsDone: önceki görevlerin tamamlanma durumu
+    public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsDone = true)
     {
         if (result == null || !result.Success) return result;
 
@@ -32,8 +29,8 @@ public static class NpcDecisionValidator
             final = NpcDecision.Refuse;
         else if (final == NpcDecision.Refuse)
             final = NpcDecision.AskMore;               // kaba değil, ceza yok
-        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs))
-            final = NpcDecision.AskMore;               // gerekçe yok, kapı açılmaz
+        else if (final == NpcDecision.OpenGate && !(mentionsHelp && hasHerbs && questsDone))
+            final = NpcDecision.AskMore;               // gerekçe veya görevler eksikse kapı açılmaz
 
         if (final != result.Decision)
         {
@@ -45,7 +42,6 @@ public static class NpcDecisionValidator
 
         return result;
     }
-
 
     private static bool ContainsAny(string text, string[] keywords)
     {
