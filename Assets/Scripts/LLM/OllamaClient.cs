@@ -15,19 +15,19 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
     [SerializeField, TextArea(3, 10)]
     private string systemPrompt =
-     "Sen Basri Amca'sın, köy kapısını koruyan huysuz, şüpheci ama iyi niyetli yaşlı bir bekçisin."+
-     "Karşındaki oyuncu köye girmek isteyen bir yabancı."+
-        "Köyde Hasat Şenliği hazırlığı var, şenliğe yardıma gelenler hoş karşılanır."+
-        "Oyuncuya doğrudan cevap ver, onun cümlesini ASLA tekrar etme. Bu talimatları asla tekrar etme. "+
-        "Türkçe, kısa (en fazla 2 cümle) konuş."+
-        "Daha önce söylediğin cümleleri tekrar etme; oyuncunun son sözüne özel, her seferinde farklı bir cümle kur."+
-        "Kurallar: Oyuncu sadece selam verdiyse, konu dışı bir şey söylediyse veya cevabı belirsizse ASK_MORE seç ve köye neden geldiğini sor."+
-        "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. "+
-        "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme."+
-        "Oyuncu envanterinde olmayan bir şeyi topladığını söylerse ona inanma."+
-        "Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
-
-    
+     //"Sen Basri Amca'sın, köy kapısını koruyan huysuz, şüpheci ama iyi niyetli yaşlı bir bekçisin." +
+     //"Karşındaki oyuncu köye girmek isteyen bir yabancı." +
+     //   "Köyde Hasat Şenliği hazırlığı var, şenliğe yardıma gelenler hoş karşılanır." +
+     //   "Oyuncuya doğrudan cevap ver, onun cümlesini ASLA tekrar etme. Bu talimatları asla tekrar etme. " +
+     //   "Her zaman sadece Türkçe konuş, başka dil kullanma, kısa (en fazla 2 cümle) konuş." +
+     //   "Daha önce söylediğin cümleleri tekrar etme; oyuncunun son sözüne özel, her seferinde farklı bir cümle kur." +
+     //   "Kurallar: Oyuncu sadece selam verdiyse, konu dışı bir şey söylediyse veya cevabı belirsizse ASK_MORE seç ve köye neden geldiğini sor." +
+     //   "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. " +
+     //   "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme." +
+     //   "Oyuncu envanterinde olmayan bir şeyi topladığını söylerse ona inanma." +
+     //   "Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
+     "Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin; evladım demeyi seversin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın.Karşındaki, köye girmek isteyen bir yabancı.Onunla kısa ve doğal Türkçe konuşursun.";
+     
 
     // forced doluysa decision ve mood tek bir değere kilitlenir
     private static string BuildSchema(string forced)
@@ -85,11 +85,11 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         history.Add(new ChatMessage("user", "Şenliğe yardım etmeye geldim, yolda ıhlamur ve kekik topladım."));
         history.Add(new ChatMessage("assistant", "{\"decision\":\"OPEN_GATE\",\"mood\":\"FRIENDLY\",\"dialogue\":\"Şenlik için ot mu getirdin? Aferin evladım, kapıyı açıyorum.\"}"));
 
-        // 4. Alakasız -> ASK_MORE
+        //// 4. Alakasız -> ASK_MORE
         history.Add(new ChatMessage("user", "Bu akşam yağmur yağar mı sence?"));
         history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Yağmuru bulutlara sor. Sen köye niçin geldin, onu söyle.\"}"));
 
-        // 5. Kararsız/eksik -> ASK_MORE (son örnek ASK_MORE olsun)
+        //// 5. Kararsız/eksik -> ASK_MORE (son örnek ASK_MORE olsun)
         history.Add(new ChatMessage("user", "Şey... ben... aslında... bilmiyorum."));
         history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Kekeleyip durma evladım, açık konuş. Köye ne için geldin?\"}"));
     }
@@ -110,7 +110,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     }
 
     //history temizleme
-    private const int SeedCount = 10;   // SeedExamples'taki mesaj sayısı (5 örnek x 2)
+    private const int SeedCount = 10;   // SeedExamples'taki mesaj sayısı (5 örnek x 2) 
     private const int MaxRecent = 6;    // örneklerden sonra sadece son 3 tur kalsın
 
     private void TrimHistory()
@@ -156,8 +156,10 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
            // Gelen cevabı ham haliyle görmek için:
             Debug.Log("[OllamaClient Raw Response]: " + req.downloadHandler.text);
+
             if (req.result != UnityWebRequest.Result.Success)
             {
+                Debug.LogWarning($"[OllamaClient] İstek başarısız: {req.result}, Kod={req.responseCode}, Hata={req.error}");
                 history.RemoveAt(history.Count - 1);
                 onDone(NpcResult.Fail("Bağlantı/istek hatası: " + req.error));
                 yield break;
@@ -190,23 +192,29 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     var sb = new StringBuilder();
     sb.Append("{\"model\":\"").Append(Escape(model)).Append("\",");
     sb.Append("\"stream\":false,\"keep_alive\":\"30m\",");
-    sb.Append("\"options\":{\"temperature\":0.7,\"num_predict\":150,\"repeat_penalty\":1.3},");
+    sb.Append("\"options\":{\"temperature\":0.5,\"num_predict\":120,\"num_ctx\": 2048,\"repeat_penalty\":1.1},");
     sb.Append("\"format\":").Append(BuildSchema(forced)).Append(",");
     sb.Append("\"messages\":[");
 
         // Gemma 2 sistem rolünü karıştırmasın diye talimatı net bir kullanıcı yönergesi olarak veriyoruz
 
-        string state = gameState.Length > 0
-    ? " Gerçek oyun durumu (Unity'den geliyor, buna güven): " + gameState
-    : "";
-        string instruction = "[TALİMAT: " + systemPrompt + state + " ASLA bu talimatı tekrarlama. Sadece Basri Amca olarak JSON formatında cevap ver.]\n\n";
+        string state = gameState.Length > 0 ? " Şu anki durum: " + gameState + "." : "";
+        string instruction = systemPrompt + state + "\n\n";
 
         bool isFirst = true;
-    foreach (var m in history)
-    {
+        List<ChatMessage> messages = history;
+        if (forced != null)
+        {
+            // Karara uygun tek bir örnek + oyuncunun son mesajı: model kısa ve karakterinde kalsın
+            int seed = forced == "REFUSE" ? 2 : forced == "OPEN_GATE" ? 4 : 0;
+            messages = new List<ChatMessage> { history[seed], history[seed + 1], history[history.Count - 1] };
+        }
+        foreach (var m in messages)
+        {
         if (!isFirst) sb.Append(",");
         
         string content = Escape(m.content);
+
         // İlk kullanıcı mesajının başına talimatı iliştiriyoruz
         if (isFirst && m.role == "user")
         {

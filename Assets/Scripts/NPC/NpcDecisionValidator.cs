@@ -7,16 +7,17 @@ public static class NpcDecisionValidator
     private static readonly CultureInfo Tr = new CultureInfo("tr-TR");
 
     private static readonly string[] HelpKeywords =
-        { "şenlik", "hasat", "yardım", "adaçay", "nane", "papatya", "şifalı", "bitki" };
+    { "şenlik", "hasat", "bayram", "hazırlık", "yardım", "elim iş tut", "çalış", "katkı",
+          "adaçay", "nane", "papatya", "otlar", "bitki", "çiçek", "şifalı", "getirdim", "topladım" };
 
     private static readonly string[] RudeKeywords =
-        { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı",
-          "kes sesini", "uğraşamam", "fena olur" };
+        { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı", "kes sesini",
+          "uğraşamam", "fena olur", "gıcık", "sevmedim", "sevmiyorum", "nefret", "kırarım",
+          "ahmak", "enayi", "yaşlı adam", "pişman", "göreceksin", "bedelini", "yakarım"};
 
-    
-
-    
-
+    // hasHerbs: envanter/bitki durumu
+    // questsDone: önceki görevlerin tamamlanma durumu
+    // questsDone varsayılan olarak false olmalı (bilgi verilmezse kapı açılmasın)
     // hasHerbs: envanter sistemi hazır olunca InventoryManager'dan gelecek
     public static NpcResult Validate(string playerMessage, NpcResult result, bool hasHerbs = true, bool questsCompleted = true)
     {

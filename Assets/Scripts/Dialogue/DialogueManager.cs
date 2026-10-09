@@ -22,6 +22,8 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
         thinkingIndicator.SetActive(false);
+        playerInput.characterLimit = 200;
+        Application.targetFrameRate = 30;
         StartCoroutine(client.Warmup());
     }
 
@@ -48,7 +50,7 @@ public class DialogueManager : MonoBehaviour
 
         if (!npcController.CanTalk)
         {
-            npcText.text = $"Basri Amca seninle şu an konuşmak istemiyor. ({Mathf.CeilToInt(npcController.RemainingCooldown)} sn)";
+            npcText.text = $"[Basri Amca şu an seninle konuşmak istemiyor. ({Mathf.CeilToInt(npcController.RemainingCooldown)} sn)]";
             return;
         }
 
@@ -63,7 +65,7 @@ public class DialogueManager : MonoBehaviour
 
         // Geçici oyun durumu
         //client.SetGameState("Oyuncunun envanterinde şifalı ot yok. Kapı kapalı.");
-        client.SetGameState(quests.BuildStatusForPrompt());
+        //client.SetGameState(quests.BuildStatusForPrompt());
 
         
         NpcResult result = null;
@@ -88,6 +90,13 @@ public class DialogueManager : MonoBehaviour
             NpcResult regenerated = null;
             yield return client.Regenerate(text, finalDecision, r => regenerated = r);
 
+            // Model bozuk veya kesik cevap verdiyse (bağlantı hatası değilse) bir kez daha dene
+            if (!result.Success && result.Error != null && !result.Error.StartsWith("Bağlantı"))
+            {
+                Debug.LogWarning("[Dialogue] Geçersiz cevap, bir kez daha deneniyor: " + result.Error);
+                yield return client.Send(text, r => result = r);
+            }
+
             if (regenerated != null && regenerated.Success)
             {
                 regenerated.Decision = finalDecision;
@@ -98,11 +107,12 @@ public class DialogueManager : MonoBehaviour
             }
             else
             {
+                Debug.LogWarning("[Dialogue] Yeniden üretim başarısız: " + (regenerated != null ? regenerated.Error : "cevap yok"));
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
         Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
-                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog: {result.Dialogue}");
+                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog ({result.Dialogue.Length} krk): \"{result.Dialogue}\"");
         npcText.text = result.Dialogue;
         npcController.Handle(result);
 
