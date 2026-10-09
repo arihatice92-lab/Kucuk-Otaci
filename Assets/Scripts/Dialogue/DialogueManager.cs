@@ -78,7 +78,7 @@ public class DialogueManager : MonoBehaviour
             text,
             result,
             true,
-            quests.AllCompleted
+            quests.AllCompleted //test aşamasında true girilebilir, girilmezse aşamalar tamamlanmadığı için kapı hiç açılmıyor.
         );
 
         // Unity kararı değiştirdiyse cümleyi LLM yeniden üretsin (hazır cümle yok)
@@ -86,6 +86,8 @@ public class DialogueManager : MonoBehaviour
         {
             NpcDecision finalDecision = result.Decision;
             NpcMood finalMood = result.Mood;
+
+            
 
             NpcResult regenerated = null;
             yield return client.Regenerate(text, finalDecision, r => regenerated = r);
@@ -111,6 +113,7 @@ public class DialogueManager : MonoBehaviour
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
+        
         Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
                   $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog ({result.Dialogue.Length} krk): \"{result.Dialogue}\"");
         npcText.text = result.Dialogue;

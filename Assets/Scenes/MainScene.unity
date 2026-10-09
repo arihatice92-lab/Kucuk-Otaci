@@ -635,6 +635,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &403193102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 403193104}
+  - component: {fileID: 403193103}
+  m_Layer: 0
+  m_Name: QuestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &403193103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403193102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90374e08f150374f94afb2e52449e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestManager
+--- !u!4 &403193104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403193102}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.86717, y: 2.0352, z: 0.31265}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &407155495
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,6 +994,7 @@ MonoBehaviour:
   thinkingIndicator: {fileID: 91260566}
   client: {fileID: 637284489}
   npcController: {fileID: 551632230}
+  quests: {fileID: 403193103}
 --- !u!4 &551632232
 Transform:
   m_ObjectHideFlags: 0
@@ -1012,7 +1057,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OllamaClient
   baseUrl: http://localhost:11434
   model: gemma2:2b
-  timeoutSeconds: 60
+  timeoutSeconds: 120
   systemPrompt: ": Sen Basri Amca's\u0131n, k\xF6y kap\u0131s\u0131n\u0131 koruyan huysuz, \u015F\xFCpheci ama iyi niyetli ya\u015Fl\u0131 bir bek\xE7isin. Kar\u015F\u0131ndaki oyuncu k\xF6ye girmek isteyen bir yabanc\u0131. K\xF6yde Hasat \u015Eenli\u011Fi haz\u0131rl\u0131\u011F\u0131 var, \u015Fenli\u011Fe yard\u0131ma gelenler ho\u015F kar\u015F\u0131lan\u0131r. Oyuncuya do\u011Frudan cevap ver, onun c\xFCmlesini ASLA tekrar etme. Bu talimatlar\u0131 asla tekrar etme. T\xFCrk\xE7e, k\u0131sa (en fazla 2 c\xFCmle) konu\u015F. Kurallar: Oyuncu sadece selam verdiyse, konu d\u0131\u015F\u0131 bir \u015Fey s\xF6ylediyse veya cevab\u0131 belirsizse ASK_MORE se\xE7 ve k\xF6ye neden geldi\u011Fini sor. Oyuncu \u015Fenli\u011Fe yard\u0131ma geldi\u011Fini ve bunu destekleyen somut bir \u015Fey (\xF6rne\u011Fin toplad\u0131\u011F\u0131 otlar) s\xF6ylerse OPEN_GATE se\xE7 ve kap\u0131y\u0131 a\xE7t\u0131\u011F\u0131n\u0131 s\xF6yle. REFUSE sadece oyuncu hakaret eder veya kaba davran\u0131rsa se\xE7ilir. Alakas\u0131z veya garip bir mesajda asla REFUSE se\xE7me. Karar ile s\xF6yledi\u011Fin s\xF6z birbiriyle \xE7eli\u015Fmemeli. Emin de\u011Filsen ASK_MORE se\xE7. REFUSE'\u0131 yaln\u0131zca a\xE7\u0131k hakaret veya tehdit varsa se\xE7; utanga\xE7, karars\u0131z veya garip mesajlar hakaret say\u0131lmaz."
 --- !u!114 &637284490
 MonoBehaviour:
@@ -1295,7 +1340,6 @@ GameObject:
   - component: {fileID: 1049882619}
   - component: {fileID: 1049882618}
   - component: {fileID: 1049882617}
-  - component: {fileID: 1049882622}
   m_Layer: 0
   m_Name: BasriAmca
   m_TagString: Untagged
@@ -1419,20 +1463,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1049882622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1049882616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08dbd6e5f1788a64a87c9a563f8e8ca2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcInteractionTrigger
-  villageGate: {fileID: 118059165}
-  ollamaClient: {fileID: 637284489}
 --- !u!1 &1132073556
 GameObject:
   m_ObjectHideFlags: 0
@@ -2618,6 +2648,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1849675456}
   m_CullTransparentMesh: 1
+--- !u!1 &1864049609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1864049611}
+  - component: {fileID: 1864049610}
+  - component: {fileID: 1864049612}
+  m_Layer: 0
+  m_Name: QuestDebug
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1864049610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864049609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f9cb0ffdcf06e54a89ca5314f41308e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestDebugKeys
+  quests: {fileID: 403193103}
+--- !u!4 &1864049611
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864049609}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.86717, y: 2.0352, z: 0.31265}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1864049612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864049609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bba812fe95cdca4408583af148e47e84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParserSmokeTest
 --- !u!1 &2017080202
 GameObject:
   m_ObjectHideFlags: 0
@@ -2766,3 +2854,5 @@ SceneRoots:
   - {fileID: 1607005495}
   - {fileID: 1132073559}
   - {fileID: 551632232}
+  - {fileID: 403193104}
+  - {fileID: 1864049611}
