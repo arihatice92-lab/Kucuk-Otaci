@@ -26,6 +26,17 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     [SerializeField] private float followDistance = 2.5f;
     [SerializeField] private float followRepathInterval = 0.25f;
     [SerializeField] private float arrivalTolerance = 1.2f;
+
+    [Header("Etkileşim (sensör kararı)")]
+    [SerializeField] private CompanionSensor sensor;
+    [SerializeField] private float interactRange = 4f;
+    [SerializeField] private float interactAngle = 25f;
+    [SerializeField] private float turnSpeed = 360f;
+    [SerializeField] private float interactTimeout = 4f;
+
+    private Transform pendingTarget;
+    private float interactStartTime;
+    private float nextSensorLogTime;
     private Vector3 destination;
 
     private NavMeshAgent agent;
@@ -40,6 +51,7 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        if (sensor == null) sensor = GetComponent<CompanionSensor>();
     }
 
     // ---- Komut girişi (ICompanionCommandReceiver) ----
@@ -67,7 +79,8 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
 
             case CompanionCommandType.Interact:
                 pendingInteractable = command.Target;
-                MoveTo(command.TargetPosition);
+                pendingTarget = (command.Target as Component)?.transform;
+                MoveTo(command.TargetPosition, 4.0f);
                 break;
         }
     }
@@ -82,14 +95,61 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
             : CompanionCommand.GoTo(targetObject.transform.position));
     }
 
+    private void UpdateInteracting()
+    {
+        // Sensör ya da hedef yoksa eski davranışa düş
+        if (sensor == null || pendingTarget == null)
+        {
+            ExecuteInteraction();
+            return;
+        }
+
+        // Hedefe doğru dön (sensörün baktığı noktaya)
+        Vector3 aim = sensor.GetAimPoint(pendingTarget);
+        Vector3 dir = aim - transform.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude > 0.01f)
+        {
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, Quaternion.LookRotation(dir), turnSpeed * Time.deltaTime);
+        }
+
+        SensorObservation obs = sensor.Observe(pendingTarget);
+        bool inRange = obs.Distance <= interactRange;
+        bool facing = Mathf.Abs(obs.Angle) <= interactAngle;
+
+        if (Time.time >= nextSensorLogTime)
+        {
+            nextSensorLogTime = Time.time + 0.5f;
+            Debug.Log($"[Fındık Sensör] Hedef: {pendingTarget.name} | Mesafe: {obs.Distance:F1} m | Açı: {obs.Angle:F0}° | Görüş: {(obs.HasLineOfSight ? "açık" : "engelli: " + obs.BlockerName)}");
+        }
+
+        if (inRange && facing && obs.HasLineOfSight)
+        {
+            ExecuteInteraction();
+            return;
+        }
+
+        if (Time.time - interactStartTime > interactTimeout)
+        {
+            Debug.LogWarning($"[Fındık FSM] Etkileşim iptal: menzil={inRange}, yön={facing}, görüş={obs.HasLineOfSight}");
+            agent.updateRotation = true;
+            pendingInteractable = null;
+            pendingTarget = null;
+            CurrentState = CompanionState.Idle;
+        }
+    }
     private void Update()
     {
-        // 1. Raycast Sensör Kontrolü (Sürekli önünü tarar)
-        PerformSensorScan();
+        
 
         // 2. FSM Durum Kontrolleri
         switch (CurrentState)
         {
+            case CompanionState.Interacting:
+                UpdateInteracting();
+                break;
+
             case CompanionState.Following:
                 UpdateFollow();
                 break;
@@ -106,7 +166,8 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
                     else if (pendingInteractable != null)
                     {
                         CurrentState = CompanionState.Interacting;
-                        ExecuteInteraction();
+                        interactStartTime = Time.time;
+                        agent.updateRotation = false;
                     }
                     else
                     {
@@ -166,10 +227,10 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         }
     }
 
-    private void MoveTo(Vector3 worldPosition)
+    private void MoveTo(Vector3 worldPosition, float searchRadius = 2.0f)
     {
         // Tıklanan nokta NavMesh dışında olabilir; en yakın yürünebilir noktaya çek
-        if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit navHit, 2.0f, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit navHit, searchRadius, NavMesh.AllAreas))
         {
             Debug.LogWarning("[Fındık FSM] Hedef yürünebilir alanda değil, komut yok sayıldı.");
             return;
@@ -199,35 +260,15 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         Vector3 b = target; b.y = 0f;
         return Vector3.Distance(a, b) <= tolerance;
     }
-    // Raycast ile çevre algılama (Sensör mekanizması)
-    private void PerformSensorScan()
-    {
-        Vector3 origin = transform.position + Vector3.up * 0.5f; // Yer seviyesinden biraz yukarıdan fırlat
-        Vector3 direction = transform.forward;
-
-        // Sahne ekranında ışını kırmızı olarak çiz (Görsel doğrulama)
-        Debug.DrawRay(origin, direction * sensorRange, Color.red);
-
-        // Fiziksel ışın fırlatma kontrolü
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, sensorRange))
-        {
-            // Aynı nesneyi her karede tekrar loglama
-            if (hit.collider != lastSeenCollider)
-            {
-                lastSeenCollider = hit.collider;
-                Debug.Log($"[Fındık Sensör] Algılanan Nesne: {hit.collider.gameObject.name} (Mesafe: {hit.distance:F1}m)");
-            }
-        }
-        else
-        {
-            lastSeenCollider = null;
-        }
-    }
+    
 
     private void ExecuteInteraction()
     {
+        Debug.Log($"[Fındık FSM] Etkileşim yürütülüyor: {pendingTarget?.name}");
+        agent.updateRotation = true;
         pendingInteractable?.Interact();
         pendingInteractable = null;
+        pendingTarget = null;
 
         CurrentState = CompanionState.ReturningToPlayer;
         if (playerTransform != null)
