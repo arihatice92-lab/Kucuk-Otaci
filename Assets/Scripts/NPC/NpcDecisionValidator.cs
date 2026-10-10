@@ -14,7 +14,16 @@ public static class NpcDecisionValidator
         { "ihtiyar", "moruk", "çekil", "defol", "salak", "aptal", "gerizekalı", "kes sesini",
           "uğraşamam", "fena olur", "gıcık", "sevmedim", "sevmiyorum", "nefret", "kırarım",
           "ahmak", "enayi", "yaşlı adam", "pişman", "göreceksin", "bedelini", "yakarım"};
+    private static readonly string[] OutOfCharacterWords =
+    { "yabancı", "oyuncu", "karşındaki", "sistem", "prompt", "npc" };
 
+    public static bool LooksOutOfCharacter(string dialogue)
+    {
+        string d = dialogue.ToLowerInvariant();
+        foreach (var w in OutOfCharacterWords)
+            if (d.Contains(w)) return true;
+        return false;
+    }
     // hasHerbs: envanter/bitki durumu
     // questsDone: önceki görevlerin tamamlanma durumu
     // questsDone varsayılan olarak false olmalı (bilgi verilmezse kapı açılmasın)
