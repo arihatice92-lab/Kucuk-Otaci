@@ -63,17 +63,14 @@ public class DialogueManager : MonoBehaviour
         playerInput.text = "";
         float start = Time.realtimeSinceStartup;
 
-        // Geçici oyun durumu
-        //client.SetGameState("Oyuncunun envanterinde şifalı ot yok. Kapı kapalı.");
-        //client.SetGameState(quests.BuildStatusForPrompt());
 
-        
         NpcResult result = null;
         yield return client.Send(text, r => result = r);
 
         NpcDecision hamKarar = result.Decision;
         bool yenidenUretildi = false;
-        //result = NpcDecisionValidator.Validate(text, result);
+        
+
         result = NpcDecisionValidator.Validate(
             text,
             result,
@@ -81,25 +78,30 @@ public class DialogueManager : MonoBehaviour
             quests.AllCompleted //test aşamasında true girilebilir, girilmezse aşamalar tamamlanmadığı için kapı hiç açılmıyor.
         );
 
-        // Unity kararı değiştirdiyse cümleyi LLM yeniden üretsin (hazır cümle yok)
-        if (result.Success && result.DecisionOverridden)
+        // Unity kararı değiştirdiyse VEYA cümle karakter dışıysa (prompt sızıntısı) LLM cümleyi yeniden üretsin
+        bool outOfCharacter = result.Success && NpcDecisionValidator.LooksOutOfCharacter(result.Dialogue) ||
+     NpcDecisionValidator.ContradictsDecision(result.Decision, result.Dialogue) ||
+     client.IsSeedCopy(result.Dialogue);
+
+        if (result.Success && (result.DecisionOverridden || outOfCharacter ))
         {
             NpcDecision finalDecision = result.Decision;
             NpcMood finalMood = result.Mood;
 
-            
-
             NpcResult regenerated = null;
-            yield return client.Regenerate(text, finalDecision, r => regenerated = r);
+            bool ok = false;
 
-            // Model bozuk veya kesik cevap verdiyse (bağlantı hatası değilse) bir kez daha dene
-            if (!result.Success && result.Error != null && !result.Error.StartsWith("Bağlantı"))
+            for (int attempt = 0; attempt < 2 && !ok; attempt++)
             {
-                Debug.LogWarning("[Dialogue] Geçersiz cevap, bir kez daha deneniyor: " + result.Error);
-                yield return client.Send(text, r => result = r);
+                NpcResult r2 = null;
+                yield return client.Regenerate(text, finalDecision, r => r2 = r);
+
+                ok = r2 != null && r2.Success && !NpcDecisionValidator.LooksOutOfCharacter(r2.Dialogue) && !NpcDecisionValidator.ContradictsDecision(finalDecision, r2.Dialogue) && !client.IsSeedCopy(r2.Dialogue);
+                if (ok) regenerated = r2;
+                else Debug.LogWarning($"[Dialogue] Yeniden üretim geçersiz ya da karakter dışı (deneme {attempt + 1}/2)");
             }
 
-            if (regenerated != null && regenerated.Success)
+            if (ok)
             {
                 regenerated.Decision = finalDecision;
                 regenerated.Mood = finalMood;
@@ -109,13 +111,12 @@ public class DialogueManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[Dialogue] Yeniden üretim başarısız: " + (regenerated != null ? regenerated.Error : "cevap yok"));
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
-        
+
         Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
-                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog ({result.Dialogue.Length} krk): \"{result.Dialogue}\"");
+                  $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog ({result.Dialogue?.Length ?? 0} krk): \"{result.Dialogue}\"");
         npcText.text = result.Dialogue;
         npcController.Handle(result);
 

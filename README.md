@@ -11,6 +11,26 @@ Küçük Otacı, Unity ve C# ile geliştirilen 3D bir macera oyunudur. Proje, ay
 
 - **Fındık:** NavMesh ve Raycast kullanan otonom yardımcı karakter
 - **Basri Amca:** Ollama üzerinde yerel olarak çalışan büyük dil modeli (LLM) destekli NPC
+- İki bileşen birbirinden bağımsızdır; yalnızca görev sistemi (`QuestManager`) üzerinden oyun durumunu paylaşır.
+- 
+## Genel Mimari
+
+```mermaid
+flowchart LR
+    P[Oyuncu] -->|F, G, sağ tık| CI[CompanionCommandInput]
+    CI -->|CompanionCommand| CC[CompanionController<br/>FSM + NavMeshAgent]
+    CC --> CS[CompanionSensor<br/>Raycast]
+    CC -->|Interact| IO[IInteractable<br/>Köprü, Kedi, Kol]
+    IO --> QM[QuestManager]
+
+    P -->|yazılı mesaj| DM[DialogueManager]
+    DM --> OC[OllamaClient]
+    OC <-->|HTTP, JSON| OL[(Ollama<br/>gemma2:2b)]
+    DM --> V[NpcDecisionValidator]
+    V --> QM
+    DM --> NC[NpcController]
+    NC -->|OpenGate| VG[VillageGate]
+```
 
 ## Oyun Senaryosu
 
@@ -27,6 +47,23 @@ Yolun son bölümünde selin getirdiği çöpler patikayı kapatmıştır. Oyunc
 Oyuncu şifalı otları toplayarak köy kapısına ulaşır. Köyün bekçisi Basri Amca ile hazır seçenekler yerine serbest metin kullanarak konuşur. Basri Amca'nın Ollama üzerinde çalışan yerel LLM tarafından üretilen yapılandırılmış yanıtı, oyuncunun açıklamasını ve Unity'nin gönderdiği gerçek oyun durumunu değerlendirir.
 
 **Köprü onarılmamışsa, yılan olayı çözülmemişse veya çöpler toplanmamışsa Basri Amca kapıyı açmaz.** Oyuncu ne kadar ikna edici yazarsa yazsın bu üç görev tamamlanmadan kapı açılmaz. Görevler tamamlandığında yanıt sonucunda kapı açılır, Basri Amca ek soru sorar veya oyuncuyu geçici olarak reddeder.
+
+## Sistem promptu
+
+```
+Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın. Karşındaki kişiyle doğrudan konuşursun; ona ‘sen’ ya da ‘evladım’ diye hitap edersin. Onun hakkında üçüncü kişi gibi konuşmaz, ‘yabancı’ ya da ‘oyuncu’ kelimelerini kullanmazsın. Oyuncunun cümlesini tekrar etmezsin. Soru soran ya da belirsiz konuşan kişiye soru sorarak karşılık verirsin (ASK_MORE); REFUSE yalnızca açık hakaret veya tehdit varsa seçilir. Cevapların kısa, doğal ve kendi ağzından olur.
+```
+Ek olarak, modele davranışı göstermek için 5 başlangıç örneği (few-shot) verilir. Karar kilitli yeniden üretimde karara özel tek satırlık bir yönerge eklenir (cümleyi yine model yazar, hazır cümle yoktur).
+## "LLM önerir, Unity karar verir"
+Küçük modeller nötr mesajlarda güvenilir karar vermez. Bu yüzden mimari iki katmanlıdır:
+LLM ham kararı ve cümleyi önerir.
+
+`NpcDecisionValidator` (Unity) oyun durumuna (görevler, envanter) ve oyuncu mesajındaki anahtar kelimelere göre kararı doğrular, gerekirse değiştirir.
+Karar değiştiyse ya da cümle kararla çelişiyor / karakter dışıysa, aynı karar kilitlenerek LLM'e yeni cümle ürettirilir. Hazır cümle kullanılmaz.
+Kapı yalnızca LLM "aç" dediği için değil, görevler tamamlandığı için açılır.
+Ek doğrulamalar:
+`LooksOutOfCharacter`: cümle "oyuncu", "prompt" gibi karakter dışı ifadeler içeriyorsa (prompt sızıntısı) yeniden üretilir.
+`ContradictsDecision`: karar `AskMore` iken cümle "kapı açık" gibi bir şey söylüyorsa yeniden üretilir.
 
 ## Görev Sistemi
 
