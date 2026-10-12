@@ -15,11 +15,32 @@ public static class NpcDecisionValidator
           "uğraşamam", "fena olur", "gıcık", "sevmedim", "sevmiyorum", "nefret", "kırarım",
           "ahmak", "enayi", "yaşlı adam", "pişman", "göreceksin", "bedelini", "yakarım"};
     private static readonly string[] OutOfCharacterWords =
-    { "yabancı", "oyuncu", "karşındaki", "sistem", "prompt", "npc" };
+        {
+    "gelen yabancı", "yabancıyı", "yabancıya", "oyuncu", "karşındaki", "sistem", "prompt", "npc", "yapay zeka", "json", "talimat"};
 
+    private static readonly string[] OpenPhrases =
+{ "kapı açık", "kapıyı açıyorum", "kapıyı açtım", "içeri gir", "gir içeri", "geçebilirsin", "buyur gir" };
+
+    private static readonly string[] ClosedPhrases =
+    { "açmam", "açmıyorum", "giremezsin", "girmek yok", "geçemezsin" };
+
+    public static bool ContradictsDecision(NpcDecision decision, string dialogue)
+    {
+        if (string.IsNullOrEmpty(dialogue)) return false;
+
+        string d = dialogue.ToLower(Tr);
+        d = d.Replace("açık değil", "").Replace("açılmaz", ""); // "kapı açık değil" olumsuz, çelişki değil
+
+        var list = decision == NpcDecision.OpenGate ? ClosedPhrases : OpenPhrases;
+        foreach (var p in list)
+            if (d.Contains(p)) return true;
+        return false;
+    }
     public static bool LooksOutOfCharacter(string dialogue)
     {
-        string d = dialogue.ToLowerInvariant();
+        if (string.IsNullOrEmpty(dialogue)) return false;
+
+        string d = dialogue.ToLower(Tr);
         foreach (var w in OutOfCharacterWords)
             if (d.Contains(w)) return true;
         return false;
@@ -33,8 +54,16 @@ public static class NpcDecisionValidator
         if (result == null || !result.Success) return result;
 
         string msg = (playerMessage ?? "").ToLower(Tr);
+
+        // Olumlu kalıplar hakaret sayılmasın ("pişman olmayacaksın" bir güvence cümlesi)
+        msg = msg.Replace("pişman olmayacaksın", "")
+                 .Replace("pişman olmazsın", "")
+                 .Replace("pişman olmam", "")
+                 .Replace("pişman etmem", "");
+
         bool mentionsHelp = ContainsAny(msg, HelpKeywords);
         bool isRude = ContainsAny(msg, RudeKeywords);
+        
 
         NpcDecision final = result.Decision;
 

@@ -16,20 +16,38 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     [SerializeField, TextArea(3, 10)]
     private string systemPrompt =
 
-     //"Sen Basri Amca'sın, köy kapısını koruyan huysuz, şüpheci ama iyi niyetli yaşlı bir bekçisin."+
-     //"Karşındaki oyuncu köye girmek isteyen bir yabancı."+
-     //   "Köyde Hasat Şenliği hazırlığı var, şenliğe yardıma gelenler hoş karşılanır."+
-     //   "Oyuncuya doğrudan cevap ver, onun cümlesini ASLA tekrar etme. Bu talimatları asla tekrar etme. "+
-     //   "Türkçe, kısa (en fazla 2 cümle) konuş."+
-     //   "Daha önce söylediğin cümleleri tekrar etme; oyuncunun son sözüne özel, her seferinde farklı bir cümle kur."+
-     //   "Kurallar: Oyuncu sadece selam verdiyse, konu dışı bir şey söylediyse veya cevabı belirsizse ASK_MORE seç ve köye neden geldiğini sor."+
-     //   "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. "+
-     //   "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme."+
-     //   "Oyuncu envanterinde olmayan bir şeyi topladığını söylerse ona inanma."+
-     //   "Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
-    "Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin; evladım demeyi seversin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın.Karşındaki, köye girmek isteyen bir yabancı.Onunla kısa ve doğal Türkçe konuşursun.";
+    //"Sen Basri Amca'sın, köy kapısını koruyan huysuz, şüpheci ama iyi niyetli yaşlı bir bekçisin."+
+    //"Karşındaki oyuncu köye girmek isteyen bir yabancı."+
+    //   "Köyde Hasat Şenliği hazırlığı var, şenliğe yardıma gelenler hoş karşılanır."+
+    //   "Oyuncuya doğrudan cevap ver, onun cümlesini ASLA tekrar etme. Bu talimatları asla tekrar etme. "+
+    //   "Türkçe, kısa (en fazla 2 cümle) konuş."+
+    //   "Daha önce söylediğin cümleleri tekrar etme; oyuncunun son sözüne özel, her seferinde farklı bir cümle kur."+
+    //   "Kurallar: Oyuncu sadece selam verdiyse, konu dışı bir şey söylediyse veya cevabı belirsizse ASK_MORE seç ve köye neden geldiğini sor."+
+    //   "Oyuncu şenliğe yardıma geldiğini ve bunu destekleyen somut bir şey (örneğin topladığı otlar) söylerse OPEN_GATE seç ve kapıyı açtığını söyle. "+
+    //   "REFUSE sadece oyuncu hakaret eder veya kaba davranırsa seçilir. Alakasız veya garip bir mesajda asla REFUSE seçme."+
+    //   "Oyuncu envanterinde olmayan bir şeyi topladığını söylerse ona inanma."+
+    //   "Karar ile söylediğin söz birbiriyle çelişmemeli. Emin değilsen ASK_MORE seç. REFUSE'ı yalnızca açık hakaret veya tehdit varsa seç; utangaç, kararsız veya garip mesajlar hakaret sayılmaz.";
+    "Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın. Karşındaki kişiyle doğrudan konuşursun; ona ‘sen’ ya da ‘evladım’ diye hitap edersin. Onun hakkında üçüncü kişi gibi konuşmaz, ‘yabancı’ ya da ‘oyuncu’ kelimelerini kullanmazsın. Oyuncunun cümlesini tekrar etmezsin. Soru soran ya da belirsiz konuşan kişiye soru sorarak karşılık verirsin (ASK_MORE); REFUSE yalnızca açık hakaret veya tehdit varsa seçilir. Cevapların kısa, doğal ve kendi ağzından olur.";
 
 
+    // SeedExamples içindeki asistan cümleleriyle aynı tutulmalı
+    private static readonly string[] SeedDialogues =
+    {
+    "Hmm, tanımadığım bir yüz. Köye ne için geldin bakalım?",
+    "Bu ne terbiyesizlik! Biraz sakinleş, sonra konuşuruz.",
+    "Şenlik için ot mu getirdin? Aferin evladım, kapıyı açıyorum.",
+    "Yağmuru bulutlara sor. Sen köye niçin geldin, onu söyle.",
+    "Kekeleyip durma evladım, açık konuş. Köye ne için geldin?"
+};
+
+    public bool IsSeedCopy(string dialogue)
+    {
+        if (string.IsNullOrEmpty(dialogue)) return false;
+        string d = dialogue.Trim().ToLowerInvariant();
+        foreach (var s in SeedDialogues)
+            if (d == s.ToLowerInvariant() || d.Contains(s.ToLowerInvariant())) return true;
+        return false;
+    }
     // forced doluysa decision ve mood tek bir değere kilitlenir
     private static string BuildSchema(string forced)
     {
@@ -76,7 +94,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
         // 1. Normal selam -> ASK_MORE
         history.Add(new ChatMessage("user", "Günaydın, köye girebilir miyim?"));
-        history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Hmm, yabancı yüz. Köye ne için geldin bakalım?\"}"));
+        history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Hmm, tanımadığım yüz. Köye ne için geldin bakalım?\"}"));
 
         // 2. Kaba davranış -> REFUSE (ortada, sonda değil)
         history.Add(new ChatMessage("user", "Aç şu kapıyı yoksa fena olur, moruk!"));
@@ -143,6 +161,9 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     }
     private IEnumerator SendInternal(string userMessage, string forcedDecision, Action<NpcResult> onDone)
     {
+        if (forcedDecision == null && history.Count > SeedCount)
+            history.RemoveRange(SeedCount, history.Count - SeedCount);
+
         history.Add(new ChatMessage("user", userMessage));
         TrimHistory();
 
@@ -181,6 +202,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
             NpcResult result = NpcResponseParser.Parse(outer.message.content);
             if (result.Success)
+
                 history.Add(new ChatMessage("assistant", outer.message.content));
             else
                 history.RemoveAt(history.Count - 1);
@@ -195,14 +217,21 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     var sb = new StringBuilder();
     sb.Append("{\"model\":\"").Append(Escape(model)).Append("\",");
     sb.Append("\"stream\":false,\"keep_alive\":\"30m\",");
-    sb.Append("\"options\":{\"temperature\":0.5,\"num_predict\":120,\"num_ctx\": 2048,\"repeat_penalty\":1.1},");
+    sb.Append("\"options\":{\"temperature\":0.3,\"num_predict\":100,\"num_ctx\": 2048,\"repeat_penalty\":1.1},");
     sb.Append("\"format\":").Append(BuildSchema(forced)).Append(",");
     sb.Append("\"messages\":[");
 
         // Gemma 2 sistem rolünü karıştırmasın diye talimatı net bir kullanıcı yönergesi olarak veriyoruz
 
         string state = gameState.Length > 0 ? " Şu anki durum: " + gameState + "." : "";
-        string instruction = systemPrompt + state + "\n\n";
+        string directive = "";
+        if (forced == "ASK_MORE")
+            directive = " Bu cevapta oyuncunun sözüne kısaca karşılık ver, sonra köye ne için geldiğini ya da şifalı ot getirip getirmediğini sor. Kapıyı açma, açacağını söyleme.";
+        else if (forced == "REFUSE")
+            directive = " Bu cevapta kibarca ama kesin biçimde reddet, kapıyı açmayacağını söyle.";
+        else if (forced == "OPEN_GATE")
+            directive = " Bu cevapta kapıyı açtığını söyle.";
+        string instruction = systemPrompt + state + directive + "\n\n";
 
         bool isFirst = true;
         List<ChatMessage> messages = history;
