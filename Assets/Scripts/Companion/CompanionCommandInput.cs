@@ -78,7 +78,7 @@ public class CompanionCommandInput : MonoBehaviour
         if (receiver == null) Debug.LogWarning("[CompanionCommandInput] Receiver bulunamadı.");
     }
 
-    private void Update()
+   private void Update()
     {
         if (IsTyping()) return;
         if (receiver == null) return;
@@ -94,10 +94,21 @@ public class CompanionCommandInput : MonoBehaviour
 
             Debug.Log($"[Komut] Tıklanan nesne: {hit.collider.name} (nokta: {hit.point})");
 
-            var interactable = hit.collider.GetComponentInParent<IInteractable>();
-            receiver.Receive(interactable != null
-                ? CompanionCommand.Interact(hit.point, interactable)
-                : CompanionCommand.GoTo(hit.point));
+         var interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null)
+            {
+                // Sadece Cat ağaçta olduğu için onun parent zemin pozisyonunu al, 
+                // Köprü ve diğer yerdeki nesnelerde doğrudan tıklanan noktayı (hit.point) kullan:
+                Component comp = interactable as Component;
+                bool isCat = comp != null && comp.name.Contains("Cat");
+                Vector3 targetPos = isCat ? comp.transform.position : hit.point;
+
+                receiver.Receive(CompanionCommand.Interact(targetPos, interactable));
+            }
+            else
+            {
+                receiver.Receive(CompanionCommand.GoTo(hit.point));
+            }
         }
     }
 }
