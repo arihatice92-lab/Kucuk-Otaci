@@ -12,7 +12,7 @@ Küçük Otacı, Unity ve C# ile geliştirilen 3D bir macera oyunudur. Proje, ay
 - **Fındık:** NavMesh ve Raycast kullanan otonom yardımcı karakter
 - **Basri Amca:** Ollama üzerinde yerel olarak çalışan büyük dil modeli (LLM) destekli NPC
 - İki bileşen birbirinden bağımsızdır; yalnızca görev sistemi (`QuestManager`) üzerinden oyun durumunu paylaşır.
-- 
+
 ## Genel Mimari
 
 ```mermaid
@@ -46,7 +46,10 @@ Yolun son bölümünde selin getirdiği çöpler patikayı kapatmıştır. Oyunc
 
 Oyuncu şifalı otları toplayarak köy kapısına ulaşır. Köyün bekçisi Basri Amca ile hazır seçenekler yerine serbest metin kullanarak konuşur. Basri Amca'nın Ollama üzerinde çalışan yerel LLM tarafından üretilen yapılandırılmış yanıtı, oyuncunun açıklamasını ve Unity'nin gönderdiği gerçek oyun durumunu değerlendirir.
 
-**Köprü onarılmamışsa, yılan olayı çözülmemişse veya çöpler toplanmamışsa Basri Amca kapıyı açmaz.** Oyuncu ne kadar ikna edici yazarsa yazsın bu üç görev tamamlanmadan kapı açılmaz. Görevler tamamlandığında yanıt sonucunda kapı açılır, Basri Amca ek soru sorar veya oyuncuyu geçici olarak reddeder.
+**Köprü onarılmamışsa, yılan olayı çözülmemişse veya çöpler toplanmamışsa Basri Amca kapıyı açmaz.** Oyuncu ne kadar ikna edici yazarsa yazsın bu dört görev tamamlanmadan kapı açılmaz. Görevler tamamlandığında yanıt sonucunda kapı açılır, Basri Amca ek soru sorar veya oyuncuyu geçici olarak reddeder.
+
+**Eksik görev ipucu:** Oyuncu kapıyı hak edecek gerekçeyi sunmuş ama görevler tamamlanmamışsa Unity kapıyı kilitli tutar ve QuestManager.TryGetMissingHint ile ilk eksik görevin kısa bir olgusunu (ör. “Yoldaki yılan hâlâ yolu kapatıyor.”) alır. Olgu LLM’ye aktarılır ve cümleyi Basri Amca kendi ağzıyla kurar; hazır cevap yoktur. Unity cümlenin eksik görevden gerçekten söz ettiğini anahtar kelimeyle doğrular, talimat sızıntısı ve karar çelişkisi kontrollerinden geçirir. Doğrulama iki denemede başarısız olursa kapı yine kilitli kalır ve ipucu olmayan geçerli cümle kullanılır. İpucu sırası görev sırasına göredir (köprü → yılan → çöp → kedi). Sınırlılık: Gemma 2:2B bazen olguyu neredeyse aynen tekrar ediyor ve cümleler kısa kalıyor.
+
 
 ## Sistem promptu
 
