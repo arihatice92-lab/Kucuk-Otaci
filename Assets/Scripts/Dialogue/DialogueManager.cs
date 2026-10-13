@@ -78,27 +78,58 @@ public class DialogueManager : MonoBehaviour
             quests.AllCompleted //test aşamasında true girilebilir, girilmezse aşamalar tamamlanmadığı için kapı hiç açılmıyor.
         );
 
-        // Unity kararı değiştirdiyse VEYA cümle karakter dışıysa (prompt sızıntısı) LLM cümleyi yeniden üretsin
-        bool outOfCharacter = result.Success && NpcDecisionValidator.LooksOutOfCharacter(result.Dialogue) ||
-     NpcDecisionValidator.ContradictsDecision(result.Decision, result.Dialogue) ||
-     client.IsSeedCopy(result.Dialogue);
+        // Kapıyı yalnızca eksik görevler engelliyorsa: eksik işin olgusunu LLM'ye ver, ipucu cümlesini o kursun
+        string hintFact = null;
+        string[] hintKeywords = null;
+        bool needsHint = result.Success && result.DeniedByMissingQuests
+                         && quests.TryGetMissingHint(out hintFact, out hintKeywords);
 
-        if (result.Success && (result.DecisionOverridden || outOfCharacter ))
+        // Unity kararı değiştirdiyse VEYA cümle karakter dışıysa (prompt sızıntısı) LLM cümleyi yeniden üretsin
+        bool outOfCharacter = result.Success &&
+            (NpcDecisionValidator.LooksOutOfCharacter(result.Dialogue) ||
+             NpcDecisionValidator.ContradictsDecision(result.Decision, result.Dialogue) ||
+             client.IsSeedCopy(result.Dialogue));
+
+        if (result.Success && (result.DecisionOverridden || outOfCharacter || needsHint))
         {
             NpcDecision finalDecision = result.Decision;
             NpcMood finalMood = result.Mood;
+            NpcResult original = result;
 
             NpcResult regenerated = null;
             bool ok = false;
+            NpcResult fallback = null;   // ipucu dışındaki tüm kontrolleri geçen son cümle
+
+            if (needsHint) client.SetGameState(hintFact);
+            Debug.Log($"[Dialogue] İpucu modu: {needsHint} | Olgu: {hintFact}");
 
             for (int attempt = 0; attempt < 2 && !ok; attempt++)
             {
                 NpcResult r2 = null;
                 yield return client.Regenerate(text, finalDecision, r => r2 = r);
 
-                ok = r2 != null && r2.Success && !NpcDecisionValidator.LooksOutOfCharacter(r2.Dialogue) && !NpcDecisionValidator.ContradictsDecision(finalDecision, r2.Dialogue) && !client.IsSeedCopy(r2.Dialogue);
+                string d2 = r2 != null ? r2.Dialogue : null;
+                bool valid = r2 != null && r2.Success
+                             && !NpcDecisionValidator.LooksOutOfCharacter(d2)
+                             && !NpcDecisionValidator.ContradictsDecision(finalDecision, d2)
+                             && !client.IsSeedCopy(d2);
+                bool hasHint = !needsHint || MentionsAny(d2, hintKeywords);
+                ok = valid && hasHint;
+
                 if (ok) regenerated = r2;
-                else Debug.LogWarning($"[Dialogue] Yeniden üretim geçersiz ya da karakter dışı (deneme {attempt + 1}/2)");
+                else
+                {
+                    if (valid) fallback = r2;
+                    Debug.LogWarning($"[Dialogue] Reddedildi (deneme {attempt + 1}/2) | geçerli={valid} | ipucuYok={!hasHint} | Diyalog: \"{d2}\"");
+                }
+            }
+
+            if (needsHint) client.SetGameState("");
+            if (!ok && fallback != null)
+            {
+                regenerated = fallback;
+                ok = true;
+                Debug.LogWarning("[Dialogue] İpucu üretilemedi, ipucusuz geçerli cümle kullanıldı.");
             }
 
             if (ok)
@@ -108,6 +139,11 @@ public class DialogueManager : MonoBehaviour
                 regenerated.Validated = true;
                 result = regenerated;
                 yenidenUretildi = true;
+            }
+            else if (needsHint && !result.DecisionOverridden && !outOfCharacter)
+            {
+                // Yalnızca ipucu üretilemedi: orijinal (geçerli) LLM cümlesi kalır, kapı yine kilitli
+                result = original;
             }
             else
             {
@@ -123,6 +159,14 @@ public class DialogueManager : MonoBehaviour
         SetWaiting(false);
     }
 
+    private static bool MentionsAny(string text, string[] keywords)
+    {
+        if (string.IsNullOrEmpty(text) || keywords == null) return false;
+        string t = text.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+        foreach (var k in keywords)
+            if (t.Contains(k)) return true;
+        return false;
+    }
     private void SetWaiting(bool waiting)
     {
         isWaiting = waiting;
