@@ -16,7 +16,7 @@ public static class NpcDecisionValidator
           "ahmak", "enayi", "yaşlı adam", "pişman", "göreceksin", "bedelini", "yakarım"};
     private static readonly string[] OutOfCharacterWords =
         {
-    "gelen yabancı", "yabancıyı", "yabancıya", "oyuncu", "karşındaki", "sistem", "prompt", "npc", "yapay zeka", "json", "talimat"};
+    "gelen yabancı", "yabancıyı", "yabancıya", "oyuncu", "karşındaki", "sistem", "prompt", "npc", "yapay zeka", "json", "talimat", "cümle kur", "kısa cümle", "kendi ağzınla", "kendi sözlerinle", "durum:", "aynen yaz", "bekçisin", "bekçisi", "huysuz", "şüpheci", "geleneksel", "özünde", "iyi niyetli"};
 
     private static readonly string[] OpenPhrases =
 { "kapı açık", "kapıyı açıyorum", "kapıyı açtım", "içeri gir", "gir içeri", "geçebilirsin", "buyur gir" };
@@ -63,7 +63,9 @@ public static class NpcDecisionValidator
 
         bool mentionsHelp = ContainsAny(msg, HelpKeywords);
         bool isRude = ContainsAny(msg, RudeKeywords);
-        
+        // Oyuncu kaba değil, gerekçesi ve otu var; kapıyı yalnızca eksik görevler engelliyor
+        bool deniedByQuests = !isRude && mentionsHelp && hasHerbs && !questsDone;
+        result.DeniedByMissingQuests = deniedByQuests;
 
         NpcDecision final = result.Decision;
 
@@ -81,8 +83,13 @@ public static class NpcDecisionValidator
             result.Mood = final == NpcDecision.Refuse ? NpcMood.Angry : NpcMood.Suspicious;
             result.DecisionOverridden = true;   // cümleyi LLM yeniden üretecek
         }
+
+        if (deniedByQuests && final != NpcDecision.AskMore)
+            result.DeniedByMissingQuests = false;   // güvenlik: bayrak yalnızca AskMore ile birlikte geçerli
+
         result.Validated = true;
         return result;
+       
     }
 
     private static bool ContainsAny(string text, string[] keywords)

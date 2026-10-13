@@ -18,6 +18,8 @@ public interface IQuestProgress
     bool AllCompleted { get; }
     bool IsCompleted(QuestId id);
     string BuildStatusForPrompt();
+
+    bool TryGetMissingHint(out string fact, out string[] keywords);
 }
 
 // Sorumluluk: Hangi görevin tamamlandığını tutar ve duyurur. Başka bir şey yapmaz.
@@ -37,6 +39,21 @@ public class QuestManager : MonoBehaviour, IQuestProgress
         { QuestId.DebrisCleared,  "selin getirdiği çöpler toplandı" },
         { QuestId.KittenRescued,  "ağaçta mahsur kalan kedi yavrusu kurtarıldı" }
     };
+    private static readonly Dictionary<QuestId, string> MissingFacts = new Dictionary<QuestId, string>
+{
+    { QuestId.BridgeRepaired, "Köprü hâlâ yıkık." },
+    { QuestId.SnakeResolved,  "Yoldaki yılan hâlâ yolu kapatıyor." },
+    { QuestId.DebrisCleared,  "Selin getirdiği çöpler hâlâ toplanmadı." },
+    { QuestId.KittenRescued,  "Ağaçtaki kedi yavrusu hâlâ kurtarılmadı." }
+};
+
+    private static readonly Dictionary<QuestId, string[]> MissingKeywords = new Dictionary<QuestId, string[]>
+{
+    { QuestId.BridgeRepaired, new[] { "köprü" } },
+    { QuestId.SnakeResolved,  new[] { "yılan" } },
+    { QuestId.DebrisCleared,  new[] { "çöp"} },
+    { QuestId.KittenRescued,  new[] { "kedi", "yavru" } }
+};
 
     private void Awake()
     {
@@ -87,5 +104,22 @@ public class QuestManager : MonoBehaviour, IQuestProgress
             : "Tüm görevler tamam, oyuncu ikna edici ise kapıyı açabilirsin.";
 
         return $"Oyuncunun yaptığı işler: {doneText}. Eksik işler: {missingText}. {rule}";
+    }
+    /// <summary>
+    /// Tamamlanmamış ilk görevi (enum sırasına göre) döndürür.
+    /// Cümleyi kurmaz, yalnızca olguyu ve doğrulama anahtar kelimelerini verir.
+    /// </summary>
+    public bool TryGetMissingHint(out string fact, out string[] keywords)
+    {
+        foreach (QuestId id in System.Enum.GetValues(typeof(QuestId)))
+        {
+            if (completed.Contains(id)) continue;
+            fact = MissingFacts[id];
+            keywords = MissingKeywords[id];
+            return true;
+        }
+        fact = null;
+        keywords = null;
+        return false;
     }
 }

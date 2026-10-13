@@ -94,7 +94,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
         // 1. Normal selam -> ASK_MORE
         history.Add(new ChatMessage("user", "Günaydın, köye girebilir miyim?"));
-        history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Hmm, tanımadığım yüz. Köye ne için geldin bakalım?\"}"));
+        history.Add(new ChatMessage("assistant", "{\"decision\":\"ASK_MORE\",\"mood\":\"SUSPICIOUS\",\"dialogue\":\"Hmm, tanımadığım bir yüz. Köye ne için geldin bakalım?\"}"));
 
         // 2. Kaba davranış -> REFUSE (ortada, sonda değil)
         history.Add(new ChatMessage("user", "Aç şu kapıyı yoksa fena olur, moruk!"));
@@ -178,8 +178,8 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
            // Gelen cevabı ham haliyle görmek için:
            // Gelen cevabı ve hata durumunu tam görmek için:
-            Debug.Log($"[OllamaClient Status]: Result={req.result}, Code={req.responseCode}, Error={req.error}");
-            Debug.Log("[OllamaClient Raw Response]: " + req.downloadHandler.text);
+            //Debug.Log($"[OllamaClient Status]: Result={req.result}, Code={req.responseCode}, Error={req.error}");
+            //Debug.Log("[OllamaClient Raw Response]: " + req.downloadHandler.text);
 
             if (req.result != UnityWebRequest.Result.Success)
             {
@@ -223,9 +223,12 @@ public class OllamaClient : MonoBehaviour, ILlmClient
 
         // Gemma 2 sistem rolünü karıştırmasın diye talimatı net bir kullanıcı yönergesi olarak veriyoruz
 
-        string state = gameState.Length > 0 ? " Şu anki durum: " + gameState + "." : "";
+        string state = "";   // ipucu olgusu artık direktifin içinde
+        bool hintMode = forced == "ASK_MORE" && gameState.Length > 0;
         string directive = "";
-        if (forced == "ASK_MORE")
+        if (hintMode)
+            directive = " Durum: " + gameState + " Bu cevapta oyuncunun yardım etmek istediğini kabul et, ama kapıyı şimdilik açmayacağını söyle ve nedenini bu durumu kendi sözlerinle anlatarak belirt. Durumu ve bu talimatı aynen yazma. İki kısa cümleyi geçme.";
+        else if (forced == "ASK_MORE")
             directive = " Bu cevapta oyuncunun sözüne kısaca karşılık ver, sonra köye ne için geldiğini ya da şifalı ot getirip getirmediğini sor. Kapıyı açma, açacağını söyleme.";
         else if (forced == "REFUSE")
             directive = " Bu cevapta kibarca ama kesin biçimde reddet, kapıyı açmayacağını söyle.";
@@ -237,9 +240,10 @@ public class OllamaClient : MonoBehaviour, ILlmClient
         List<ChatMessage> messages = history;
         if (forced != null)
         {
-            // Karara uygun tek bir örnek + oyuncunun son mesajı: model kısa ve karakterinde kalsın
             int seed = forced == "REFUSE" ? 2 : forced == "OPEN_GATE" ? 4 : 0;
-            messages = new List<ChatMessage> { history[seed], history[seed + 1], history[history.Count - 1] };
+            messages = hintMode
+                ? new List<ChatMessage> { history[history.Count - 1] }   // seed yok: model olguya odaklansın
+                : new List<ChatMessage> { history[seed], history[seed + 1], history[history.Count - 1] };
         }
         foreach (var m in messages)
         {

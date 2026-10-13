@@ -24,6 +24,8 @@ public class NpcResult
 
     public bool DecisionOverridden;   // Unity LLM'in kararını değiştirdi mi
 
+    public bool DeniedByMissingQuests;   // oyuncu uygun, tek engel eksik görevler
+
     public static NpcResult Fail(string error) => new NpcResult
     {
         Success = false,
