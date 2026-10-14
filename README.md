@@ -20,8 +20,11 @@ flowchart LR
     P[Oyuncu] -->|F, G, sağ tık| CI[CompanionCommandInput]
     CI -->|CompanionCommand| CC[CompanionController<br/>FSM + NavMeshAgent]
     CC --> CS[CompanionSensor<br/>Raycast]
-    CC -->|Interact| IO[IInteractable<br/>Köprü, Kedi, Kol]
+    CC -->|Interact| IO[IInteractable<br/>Köprü, Ağaç, Kedi, Çöp, Kol]
+    P -->|E tuşu| PI[PlayerInteractor]
+    PI -->|InteractByPlayer| PO[IPlayerInteractable<br/>Yılan, Çöp, Şifalı ot]
     IO --> QM[QuestManager]
+    PO --> QM
 
     P -->|yazılı mesaj| DM[DialogueManager]
     DM --> OC[OllamaClient]
@@ -31,6 +34,15 @@ flowchart LR
     DM --> NC[NpcController]
     NC -->|OpenGate| VG[VillageGate]
 ```
+
+## Kontroller
+
+| Tuş | İşlev |
+|-----|-------|
+| F | Fındık oyuncuyu takip eder |
+| G | Fındık bulunduğu yerde bekler |
+| Sağ tık | Fındık'a tıklanan yere ya da nesneye gitme komutu verir |
+| E | Oyuncu yakındaki nesneyle etkileşir (erzağı yılana verir, çöp ve şifalı ot toplar) |
 
 ## Oyun Senaryosu
 
@@ -42,49 +54,66 @@ Yolun devamında oyuncu ve Fındık yıkık bir köprüyle karşılaşır. Oyunc
 
 Daha sonra yolda bir yılanla karşılaşırlar. Oyuncu, evden çıkarken yol için yanına aldığı erzağı yılana verir. Yılan erzakla yetinir ve yolu açar; böylece ikili tehlikeden kurtulur.
 
-Yolun son bölümünde selin getirdiği çöpler patikayı kapatmıştır. Oyuncu ve Fındık bu çöpleri toplar ve yola devam eder.
+Yolun devamında selin getirdiği çöpler patikayı kapatmıştır. Oyuncu ve Fındık bu çöpleri toplar ve yola devam eder.
 
-Oyuncu şifalı otları toplayarak köy kapısına ulaşır. Köyün bekçisi Basri Amca ile hazır seçenekler yerine serbest metin kullanarak konuşur. Basri Amca'nın Ollama üzerinde çalışan yerel LLM tarafından üretilen yapılandırılmış yanıtı, oyuncunun açıklamasını ve Unity'nin gönderdiği gerçek oyun durumunu değerlendirir.
+Bir ağacın tepesinde mahsur kalmış bir kedi yavrusu vardır. Fındık yavruya ulaşır ve onu kurtarır.
 
-**Köprü onarılmamışsa, yılan olayı çözülmemişse veya çöpler toplanmamışsa Basri Amca kapıyı açmaz.** Oyuncu ne kadar ikna edici yazarsa yazsın bu dört görev tamamlanmadan kapı açılmaz. Görevler tamamlandığında yanıt sonucunda kapı açılır, Basri Amca ek soru sorar veya oyuncuyu geçici olarak reddeder.
+Son olarak oyuncu, ormanın çeşitli yerlerine dağılmış şifalı otlardan (nane, papatya, adaçayı vb.) gereken sayıda toplar ve köy kapısına ulaşır. Köyün bekçisi Basri Amca ile hazır seçenekler yerine serbest metin kullanarak konuşur. Basri Amca'nın Ollama üzerinde çalışan yerel LLM tarafından üretilen yapılandırılmış yanıtı, oyuncunun açıklamasıyla birlikte değerlendirilir; kapıyı açıp açmama kararını ise Unity oyun durumuna bakarak doğrular.
 
-**Eksik görev ipucu:** Oyuncu kapıyı hak edecek gerekçeyi sunmuş ama görevler tamamlanmamışsa Unity kapıyı kilitli tutar ve QuestManager.TryGetMissingHint ile ilk eksik görevin kısa bir olgusunu (ör. “Yoldaki yılan hâlâ yolu kapatıyor.”) alır. Olgu LLM’ye aktarılır ve cümleyi Basri Amca kendi ağzıyla kurar; hazır cevap yoktur. Unity cümlenin eksik görevden gerçekten söz ettiğini anahtar kelimeyle doğrular, talimat sızıntısı ve karar çelişkisi kontrollerinden geçirir. Doğrulama iki denemede başarısız olursa kapı yine kilitli kalır ve ipucu olmayan geçerli cümle kullanılır. İpucu sırası görev sırasına göredir (köprü → yılan → çöp → kedi). Sınırlılık: Gemma 2:2B bazen olguyu neredeyse aynen tekrar ediyor ve cümleler kısa kalıyor.
+**Köprü onarılmamışsa, yılan olayı çözülmemişse, çöpler toplanmamışsa, kedi yavrusu kurtarılmamışsa veya yeterli şifalı ot toplanmamışsa Basri Amca kapıyı açmaz.** Oyuncu ne kadar ikna edici yazarsa yazsın bu beş görev tamamlanmadan kapı açılmaz. Görevler tamamlandığında yanıt sonucunda kapı açılır veya Basri Amca ek soru sorar ya da oyuncuyu geçici olarak reddeder.
 
+**Eksik görev ipucu:** Oyuncu kapıyı hak edecek gerekçeyi sunmuş ama görevler tamamlanmamışsa Unity kapıyı kilitli tutar ve `QuestManager.TryGetMissingHint` ile ilk eksik görevin kısa bir olgusunu (ör. "Yoldaki yılan hâlâ yolu kapatıyor.") alır. Olgu LLM'ye aktarılır ve cümleyi Basri Amca kendi ağzıyla kurar; hazır cevap yoktur. Unity cümlenin eksik görevden gerçekten söz ettiğini anahtar kelimeyle doğrular, talimat sızıntısı ve karar çelişkisi kontrollerinden geçirir. Doğrulama iki denemede başarısız olursa kapı yine kilitli kalır ve ipucu olmayan geçerli cümle kullanılır. İpucu sırası görev sırasına göredir (köprü → yılan → çöp → kedi → şifalı ot). Sınırlılık: Gemma 2:2B bazen olguyu neredeyse aynen tekrar ediyor ve cümleler kısa kalıyor.
 
 ## Sistem promptu
 
 ```
-Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın. Karşındaki kişiyle doğrudan konuşursun; ona ‘sen’ ya da ‘evladım’ diye hitap edersin. Onun hakkında üçüncü kişi gibi konuşmaz, ‘yabancı’ ya da ‘oyuncu’ kelimelerini kullanmazsın. Oyuncunun cümlesini tekrar etmezsin. Soru soran ya da belirsiz konuşan kişiye soru sorarak karşılık verirsin (ASK_MORE); REFUSE yalnızca açık hakaret veya tehdit varsa seçilir. Cevapların kısa, doğal ve kendi ağzından olur.
+Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz, şüpheci ve geleneksel biri olsan da özünde iyi niyetlisin. Görevin köye yabancıların kontrolsüz girmesini önlemek, ama Hasat Şenliği'ne yardım etmeye gelenleri memnuniyetle karşılarsın. Karşındaki kişiyle doğrudan konuşursun; ona 'sen' ya da 'evladım' diye hitap edersin. Onun hakkında üçüncü kişi gibi konuşmaz, 'yabancı' ya da 'oyuncu' kelimelerini kullanmazsın. Oyuncunun cümlesini tekrar etmezsin. Soru soran ya da belirsiz konuşan kişiye soru sorarak karşılık verirsin (ASK_MORE); REFUSE yalnızca açık hakaret veya tehdit varsa seçilir. Cevapların kısa, doğal ve kendi ağzından olur.
 ```
-Ek olarak, modele davranışı göstermek için 5 başlangıç örneği (few-shot) verilir. Karar kilitli yeniden üretimde karara özel tek satırlık bir yönerge eklenir (cümleyi yine model yazar, hazır cümle yoktur).
-## "LLM önerir, Unity karar verir"
-Küçük modeller nötr mesajlarda güvenilir karar vermez. Bu yüzden mimari iki katmanlıdır:
-LLM ham kararı ve cümleyi önerir.
 
-`NpcDecisionValidator` (Unity) oyun durumuna (görevler, envanter) ve oyuncu mesajındaki anahtar kelimelere göre kararı doğrular, gerekirse değiştirir.
+Ek olarak, modele davranışı göstermek için 5 başlangıç örneği (few-shot) verilir. Karar kilitli yeniden üretimde karara özel tek satırlık bir yönerge eklenir (cümleyi yine model yazar, hazır cümle yoktur).
+
+## "LLM önerir, Unity karar verir"
+
+Küçük modeller nötr mesajlarda güvenilir karar vermez. Bu yüzden mimari iki katmanlıdır:
+
+1. LLM ham kararı ve cümleyi önerir.
+2. `NpcDecisionValidator` (Unity) oyun durumuna (görevler, envanter) ve oyuncu mesajındaki anahtar kelimelere göre kararı doğrular, gerekirse değiştirir.
+
 Karar değiştiyse ya da cümle kararla çelişiyor / karakter dışıysa, aynı karar kilitlenerek LLM'e yeni cümle ürettirilir. Hazır cümle kullanılmaz.
+
 Kapı yalnızca LLM "aç" dediği için değil, görevler tamamlandığı için açılır.
+
 Ek doğrulamalar:
-`LooksOutOfCharacter`: cümle "oyuncu", "prompt" gibi karakter dışı ifadeler içeriyorsa (prompt sızıntısı) yeniden üretilir.
-`ContradictsDecision`: karar `AskMore` iken cümle "kapı açık" gibi bir şey söylüyorsa yeniden üretilir.
+
+- `LooksOutOfCharacter`: cümle "oyuncu", "prompt" gibi karakter dışı ifadeler içeriyorsa (prompt sızıntısı) yeniden üretilir.
+- `ContradictsDecision`: karar `AskMore` iken cümle "kapı açık" gibi bir şey söylüyorsa yeniden üretilir.
 
 ## Görev Sistemi
 
-Oyuncu ve Fındık köy kapısına varmadan önce üç görevi tamamlamak zorundadır. Görevlerin durumu Unity tarafında `QuestManager` ile tutulur.
+Oyuncu ve Fındık köy kapısına varmadan önce beş görevi tamamlamak zorundadır. Görevlerin durumu Unity tarafında `QuestManager` ile tutulur.
 
-| # | Görev | Nasıl çözülür | Görev kimliği |
-|---|-------|---------------|---------------|
-| 1 | Yıkık köprü | Fındık köprüye gider ve onarım etkileşimini yapar | `BridgeRepaired` |
-| 2 | Yılan | Oyuncu, evden çıkarken aldığı erzağı yılana verir | `SnakeResolved` |
-| 3 | Sel çöpleri | Oyuncu ve Fındık, selin getirdiği çöpleri toplar | `DebrisCleared` |
+| # | Görev | Nasıl çözülür | Kim yapar | Görev kimliği |
+|---|-------|---------------|-----------|---------------|
+| 1 | Yıkık köprü | Fındık köprüye gider ve onarım etkileşimini yapar | Fındık | `BridgeRepaired` |
+| 2 | Yılan | Oyuncu, evden çıkarken aldığı erzağı yılana verir | Oyuncu | `SnakeResolved` |
+| 3 | Sel çöpleri | Selin getirdiği çöpler toplanır | Oyuncu ve Fındık | `DebrisCleared` |
+| 4 | Kedi yavrusu | Fındık, ağaçta mahsur kalan yavruyu kurtarır | Fındık | `KittenRescued` |
+| 5 | Şifalı otlar | Oyuncu ormandaki otlardan gereken sayıda (varsayılan 3) toplar | Oyuncu | `HerbsCollected` |
 
-Vana ve devrilen ağaç görevleri (`waterDrained`, `treeCleared`) yolu fiziksel olarak açan ön adımlardır; bunlar tamamlanmadan yukarıdaki görevlere ulaşılamaz.
+Vana ve devrilen ağaç (`waterDrained`, `treeCleared`) yolu fiziksel olarak açan ön adımlardır; kapı koşulu değildir, ancak bunlar tamamlanmadan sonraki görevlere ulaşılamaz.
+
+Görev nesneleri iki ortak arayüzle çalışır:
+
+- **`IInteractable`:** Fındık'ın sağ tık komutuyla gidip etkileştiği nesneler (köprü, kedi, ağaç, çöp, vana kolu). Tek bir `CompanionTask` sınıfı köprü, ağaç ve kedi için Inspector ayarlarıyla yeniden kullanılır.
+- **`IPlayerInteractable`:** Oyuncunun E tuşuyla etkileştiği nesneler (yılan, çöp, şifalı ot). Böylece sağ tıkla Fındık yanlışlıkla yılana ya da otlara gönderilmez.
+
+Oyuncu bir erzakla başlar (`PlayerInventory`), erzak başka bir yerde harcanmadığı için yılan görevi kilitlenemez.
 
 ## Yapay Zeka Bileşenleri
 
 ### Fındık - Otonom Companion
 
-Fındık, oyuncunun yanında bekleyen otonom yardımcı karakterdir. Oyuncunun komutu üzerine NavMesh kullanarak vana koluna ve yıkık köprüye ulaşır, ilgili etkileşimleri gerçekleştirir. Raycast sensörleriyle çevresindeki engelleri algılar. Fiziksel engeller kaldırıldıktan sonra oyuncunun ilerlemesine yardım eder.
+Fındık, oyuncunun yanında bekleyen otonom yardımcı karakterdir. Oyuncunun komutu üzerine NavMesh kullanarak vana koluna, yıkık köprüye, kediye ve çöplere ulaşır, ilgili etkileşimleri gerçekleştirir. Raycast sensörleriyle çevresindeki engelleri algılar. Fiziksel engeller kaldırıldıktan sonra oyuncunun ilerlemesine yardım eder.
 
 Fındık'ın davranışı önceden belirlenmiş hareket adımlarına dayanmaz. Hedefe ulaşmak için NavMesh üzerinde yol bulur ve durum makinesi ile aşağıdaki durumları yönetir:
 
@@ -101,7 +130,7 @@ Basri Amca, köy kapısını koruyan şüpheci fakat iyi niyetli bir bekçidir. 
 
 Basri Amca'nın yanıtları, Ollama üzerinde yerel olarak çalışan büyük dil modeli tarafından üretilir. Modelin yanıtı `dialogue`, `decision` ve `mood` alanlarını içeren JSON formatındadır. Unity, JSON yanıtını doğrular ve yalnız geçerli kararları oyun durumuna uygular.
 
-Oyuncunun topladığı otlar ve görevlerin durumu gibi bilgiler Unity tarafından tutulur. Bu bilgiler LLM'ye bağlam olarak iletilir; LLM'nin oyun durumunu tahmin etmesine izin verilmez.
+Görevlerin durumu ve oyuncunun topladığı otlar Unity tarafından tutulur. Kapı kararını Unity verir; LLM'nin oyun durumunu tahmin etmesine izin verilmez. Eksik görev olduğunda yalnızca ilk eksik görevin olgusu LLM'ye bağlam olarak iletilir.
 
 ## Temel Oyun Akışı
 
@@ -113,12 +142,12 @@ Oyuncunun topladığı otlar ve görevlerin durumu gibi bilgiler Unity tarafınd
 6. Oyuncu ve Fındık yıkık köprüye ulaşır; Fındık köprüyü onarır.
 7. Yolda yılanla karşılaşırlar; oyuncu evden çıkarken aldığı erzağı yılana verir ve yılan yolu açar.
 8. Selin getirdiği çöpler toplanır ve yola devam edilir.
-9. Oyuncu şifalı otları toplar ve köy kapısına ulaşır.
-10. Oyuncu Basri Amca ile serbest metin aracılığıyla konuşur.
-11. Unity, oyuncu mesajını ve gerçek oyun durumunu (görev durumları dahil) Ollama'ya gönderir.
-12. Ollama, `dialogue`, `decision` ve `mood` içeren JSON yanıtı üretir.
-13. Unity yanıtı doğrular. Görevler tamamlanmamışsa `OPEN_GATE` kararını `REFUSE` olarak değiştirir.
-14. Unity geçerli yanıta göre kapıyı açar, ek konuşma başlatır veya geçici ret durumunu uygular.
+9. Fındık ağaçta mahsur kalan kedi yavrusunu kurtarır.
+10. Oyuncu ormandaki şifalı otlardan gereken sayıda toplar ve köy kapısına ulaşır.
+11. Oyuncu Basri Amca ile serbest metin aracılığıyla konuşur.
+12. Unity, oyuncu mesajını Ollama'ya gönderir; Ollama `dialogue`, `decision` ve `mood` içeren JSON yanıtı üretir.
+13. Unity yanıtı doğrular. Görevler tamamlanmamışsa `OPEN_GATE` kararını `ASK_MORE` olarak değiştirir ve eksik göreve ilişkin bir ipucu cümlesini LLM'ye ürettirir.
+14. Unity geçerli yanıta göre kapıyı açar, ek konuşma başlatır veya (açık hakarette) geçici ret durumunu uygular.
 15. Kapı açılırsa oyuncu Hasat Şenliği alanına ulaşır ve oyun tamamlanır.
 
 ```mermaid
@@ -128,31 +157,33 @@ flowchart TD
     C --> D[Fındık yıkık köprüyü onarır]
     D --> E[Oyuncu erzağı yılana verir]
     E --> F[Selin getirdiği çöpler toplanır]
-    F --> G[Oyuncu şifalı otları toplar]
+    F --> F2[Fındık kedi yavrusunu kurtarır]
+    F2 --> G[Oyuncu şifalı otları toplar]
     G --> H[Oyuncu Basri Amca ile konuşur]
-    H --> I[Unity mesajı ve oyun durumunu Ollama'ya gönderir]
+    H --> I[Unity mesajı Ollama'ya gönderir]
     I --> J{LLM kararı}
     J -->|OPEN_GATE| K{Tüm görevler tamam mı?}
     K -->|Evet| L[NpcController.OnGateShouldOpen]
     L --> M[VillageGate açılır, oyun tamamlanır]
-    K -->|Hayır| N[Karar REFUSE olarak değiştirilir]
+    K -->|Hayır| N[Karar ASK_MORE olarak değiştirilir<br/>eksik görev ipucu üretilir]
     J -->|ASK_MORE| O[Basri Amca ek bilgi ister]
-    J -->|REFUSE| N
+    J -->|REFUSE| R[Basri Amca konuşmayı geçici reddeder]
     I -->|Hata veya zaman aşımı| P[Yedek diyalog gösterilir]
 ```
 
 ## Oyun Durumu ve Kararların Doğrulanması
 
-Oyunun önemli durumları Unity tarafından tutulur. Bu sayede yerel LLM, oyuncunun oyun içindeki davranışlarını tahmin etmek yerine gerçek oyun verilerini bağlam olarak alır.
+Oyunun önemli durumları Unity tarafından tutulur. LLM oyuncunun oyun içindeki davranışlarını tahmin etmez; durum Unity'de tutulur ve karar Unity'de doğrulanır.
 
-Örnek oyun durumları:
+Oyun durumları:
 
 - `waterDrained`: Vana etkinleştirilip suyun çekilip çekilmediği
 - `treeCleared`: Devrilen ağacın kaldırılıp kaldırılmadığı
 - `bridgeRepaired`: Fındık'ın yıkık köprüyü onarıp onarmadığı
 - `snakeResolved`: Oyuncunun erzağı yılana verip yolu açıp açmadığı
 - `debrisCleared`: Selin getirdiği çöplerin toplanıp toplanmadığı
-- `collectedHerbs`: Oyuncunun topladığı şifalı otlar
+- `kittenRescued`: Fındık'ın ağaçtaki kedi yavrusunu kurtarıp kurtarmadığı
+- `herbsCollected`: Oyuncunun gereken sayıda şifalı ot toplayıp toplamadığı
 
 Basri Amca'nın yerel LLM tarafından üretilen yanıtı, `dialogue`, `decision` ve `mood` alanlarını içerir. Unity yalnızca izin verilen kararları kabul eder:
 
@@ -166,8 +197,8 @@ Beklenmeyen kararlar, boş yanıtlar veya geçersiz JSON verileri oyun durumunu 
 
 Kapıyı açma kararı iki katmanlıdır:
 
-1. **LLM katmanı:** Basri Amca, oyuncunun mesajını ve Unity'nin ilettiği görev durumunu alır; `OPEN_GATE`, `ASK_MORE` veya `REFUSE` kararını JSON olarak döndürür.
-2. **Kural katmanı:** Köprü, yılan ve çöp görevlerinin tamamı bitmediyse, LLM `OPEN_GATE` dese bile Unity kararı `REFUSE` olarak değiştirir. Böylece sonuç, modelin hata yapmasından bağımsız ve deterministiktir.
+1. **LLM katmanı:** Basri Amca, oyuncunun mesajına göre `OPEN_GATE`, `ASK_MORE` veya `REFUSE` kararını JSON olarak döndürür.
+2. **Kural katmanı:** Beş görevin tamamı (köprü, yılan, çöp, kedi, şifalı otlar) bitmediyse veya mesajda yardım gerekçesi yoksa, LLM `OPEN_GATE` dese bile Unity kararı `ASK_MORE`'a çevirir. Böylece sonuç, modelin hata yapmasından bağımsız ve deterministiktir.
 
 Oyuncu kapıyı doğrudan açamaz. `VillageGate`, yalnızca `NpcController.OnGateShouldOpen` olayını dinler; bu olay da yalnızca doğrulanmış `OPEN_GATE` kararından sonra tetiklenir.
 
@@ -175,7 +206,7 @@ LLM isteği `OllamaClient` içinde 30 saniyelik zaman aşımıyla çalışır. �
 
 ## Model Seçimi
 
-gemma2:2b ve llama3.2:1b aynı senaryolarla (normal selam,  eksik görevle ikna) denendi. İki modelde de modelin kendi kararı (HAM) yanlıştı (gemma2:2b: 0/6, llama3.2:1b: 0/4); doğru karar NpcDecisionValidator tarafından verildi. llama3.2:1b daha hızlı (istek başına yaklaşık 4–6 sn, gemma2:2b için 9–10 sn) ve prompt önbelleğini kullanıyor ancak cümlelerinde anlamsız ifadeler, bozuk token artıkları (}assistant) ve system prompt sızıntısı görüldü. gemma2:2b’nin Türkçesi de zayıf fakat sızıntı çok daha az (v3: 24 denemede 0) ve cümleleri çoğunlukla anlaşılır. Oyuncunun okuduğu çıktının kalitesi hızdan daha önemli bulunduğu için gemma2:2b seçildi.
+gemma2:2b ve llama3.2:1b aynı senaryolarla (normal selam,  eksik görevle ikna) denendi. İki modelde de modelin kendi kararı (HAM) yanlıştı (gemma2:2b: 0/6, llama3.2:1b: 0/4); doğru karar NpcDecisionValidator tarafından verildi. llama3.2:1b daha hızlı (istek başına yaklaşık 4–6 sn, gemma2:2b için 9–10 sn) ve prompt önbelleğini kullanıyor ancak cümlelerinde anlamsız ifadeler, bozuk token artıkları (}assistant) ve system prompt sızıntısı görüldü. gemma2:2b'nin Türkçesi de zayıf fakat sızıntı çok daha az (v3: 24 denemede 0) ve cümleleri çoğunlukla anlaşılır. Oyuncunun okuduğu çıktının kalitesi hızdan daha önemli bulunduğu için gemma2:2b seçildi.
 
 ## Kullanılan Teknolojiler
 

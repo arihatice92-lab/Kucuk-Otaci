@@ -8,7 +8,8 @@ public enum QuestId
     BridgeRepaired,   // Fındık yıkık köprüyü onardı
     SnakeResolved,    // Erzak yılana verildi, yol açıldı
     DebrisCleared,    // Selin getirdiği çöpler toplandı
-    KittenRescued     // Fındık ağaçta mahsur kalan kedi yavrusunu kurtardı
+    KittenRescued,    // Fındık ağaçta mahsur kalan kedi yavrusunu kurtardı
+    HerbsCollected    // Oyuncu gereken sayıda şifalı otu topladı
 }
 
 // Görev durumunu okumak isteyen sınıflar (Validator, DialogueManager vb.)
@@ -37,14 +38,16 @@ public class QuestManager : MonoBehaviour, IQuestProgress
         { QuestId.BridgeRepaired, "yıkık köprü onarıldı" },
         { QuestId.SnakeResolved,  "yoldaki yılana erzak verilip geçildi" },
         { QuestId.DebrisCleared,  "selin getirdiği çöpler toplandı" },
-        { QuestId.KittenRescued,  "ağaçta mahsur kalan kedi yavrusu kurtarıldı" }
+        { QuestId.KittenRescued,  "ağaçta mahsur kalan kedi yavrusu kurtarıldı" },
+        { QuestId.HerbsCollected,  "şifalı otlar toplandı" }
     };
     private static readonly Dictionary<QuestId, string> MissingFacts = new Dictionary<QuestId, string>
 {
     { QuestId.BridgeRepaired, "Köprü hâlâ yıkık." },
     { QuestId.SnakeResolved,  "Yoldaki yılan hâlâ yolu kapatıyor." },
     { QuestId.DebrisCleared,  "Selin getirdiği çöpler hâlâ toplanmadı." },
-    { QuestId.KittenRescued,  "Ağaçtaki kedi yavrusu hâlâ kurtarılmadı." }
+    { QuestId.KittenRescued,  "Ağaçtaki kedi yavrusu hâlâ kurtarılmadı." },
+    { QuestId.HerbsCollected,  "Şifalı otlar hâlâ toplanmadı." }
 };
 
     private static readonly Dictionary<QuestId, string[]> MissingKeywords = new Dictionary<QuestId, string[]>
@@ -52,7 +55,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
     { QuestId.BridgeRepaired, new[] { "köprü" } },
     { QuestId.SnakeResolved,  new[] { "yılan" } },
     { QuestId.DebrisCleared,  new[] { "çöp"} },
-    { QuestId.KittenRescued,  new[] { "kedi", "yavru" } }
+    { QuestId.KittenRescued,  new[] { "kedi", "yavru" } },
+    { QuestId.HerbsCollected,  new[] { "şifalı", "bitki", "otlar" } }
 };
 
     private void Awake()
@@ -105,10 +109,10 @@ public class QuestManager : MonoBehaviour, IQuestProgress
 
         return $"Oyuncunun yaptığı işler: {doneText}. Eksik işler: {missingText}. {rule}";
     }
-    /// <summary>
+    
     /// Tamamlanmamış ilk görevi (enum sırasına göre) döndürür.
     /// Cümleyi kurmaz, yalnızca olguyu ve doğrulama anahtar kelimelerini verir.
-    /// </summary>
+   
     public bool TryGetMissingHint(out string fact, out string[] keywords)
     {
         foreach (QuestId id in System.Enum.GetValues(typeof(QuestId)))
