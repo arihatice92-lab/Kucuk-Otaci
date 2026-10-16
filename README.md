@@ -152,23 +152,23 @@ Görevlerin durumu ve oyuncunun topladığı otlar Unity tarafından tutulur. Ka
 
 ```mermaid
 flowchart TD
-    A[Oyuncu ormana girer] --> B[Fındık vanayı çalıştırır, su çekilir]
-    B --> C[Devrilen ağaç kaldırılır]
-    C --> D[Fındık yıkık köprüyü onarır]
-    D --> E[Oyuncu erzağı yılana verir]
-    E --> F[Selin getirdiği çöpler toplanır]
-    F --> F2[Fındık kedi yavrusunu kurtarır]
-    F2 --> G[Oyuncu şifalı otları toplar]
-    G --> H[Oyuncu Basri Amca ile konuşur]
-    H --> I[Unity mesajı Ollama'ya gönderir]
-    I --> J{LLM kararı}
-    J -->|OPEN_GATE| K{Tüm görevler tamam mı?}
-    K -->|Evet| L[NpcController.OnGateShouldOpen]
-    L --> M[VillageGate açılır, oyun tamamlanır]
-    K -->|Hayır| N[Karar ASK_MORE olarak değiştirilir<br/>eksik görev ipucu üretilir]
-    J -->|ASK_MORE| O[Basri Amca ek bilgi ister]
-    J -->|REFUSE| R[Basri Amca konuşmayı geçici reddeder]
-    I -->|Hata veya zaman aşımı| P[Yedek diyalog gösterilir]
+    A["Oyuncu ormana girer"] --> B["Fındık vanayı çalıştırır, su çekilir"]
+    B --> C["Devrilen ağaç kaldırılır"]
+    C --> D["Fındık yıkık köprüyü onarır"]
+    D --> E["Oyuncu erzağı yılana verir"]
+    E --> F["Selin getirdiği çöpler toplanır"]
+    F --> F2["Fındık kedi yavrusunu kurtarır"]
+    F2 --> G["Oyuncu şifalı otları toplar"]
+    G --> H["Oyuncu Basri Amca ile konuşur"]
+    H --> I["Unity mesajı Ollama'ya gönderir"]
+    I --> J{"LLM kararı"}
+    J -->|"OPEN_GATE"| K{"Tüm görevler tamam mı?"}
+    K -->|"Evet"| L["NpcController.OnGateShouldOpen"]
+    L --> M["VillageGate açılır, oyun tamamlanır"]
+    K -->|"Hayır"| N["Karar ASK_MORE olarak değiştirilir<br/>eksik görev ipucu üretilir"]
+    J -->|"ASK_MORE"| O["Basri Amca ek bilgi ister"]
+    J -->|"REFUSE"| R["Basri Amca konuşmayı geçici reddeder"]
+    I -->|"Hata / Zaman Aşımı"| P["Yedek diyalog gösterilir"]
 ```
 
 ## Oyun Durumu ve Kararların Doğrulanması
