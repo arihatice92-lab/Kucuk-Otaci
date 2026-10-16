@@ -6,7 +6,8 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Button startButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
-    [SerializeField] private GameObject settingsPanel;   // bir sonraki adımda bağlanacak, şimdilik boş kalabilir
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private Button closeSettingsButton;
 
     private void Start()
     {
@@ -14,11 +15,16 @@ public class MainMenuController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
+    private void OnCloseSettingsClicked()
+    {
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+    }
     private void OnEnable()
     {
         startButton.onClick.AddListener(OnStartClicked);
         settingsButton.onClick.AddListener(OnSettingsClicked);
         quitButton.onClick.AddListener(OnQuitClicked);
+        closeSettingsButton.onClick.AddListener(OnCloseSettingsClicked);
     }
 
     private void OnDisable()
@@ -26,6 +32,7 @@ public class MainMenuController : MonoBehaviour
         startButton.onClick.RemoveListener(OnStartClicked);
         settingsButton.onClick.RemoveListener(OnSettingsClicked);
         quitButton.onClick.RemoveListener(OnQuitClicked);
+        closeSettingsButton.onClick.RemoveListener(OnCloseSettingsClicked);
     }
 
     private void OnStartClicked() => SceneLoader.Load(SceneLoader.CharacterSelect);
