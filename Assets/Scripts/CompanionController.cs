@@ -18,9 +18,6 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     [SerializeField] private Transform playerTransform;
     [SerializeField] private GameObject targetObject;
 
-    [Header("Sensör (Raycast) Ayarları")]
-    [SerializeField] private float sensorRange = 3.0f; // Algılama mesafesi
-    [SerializeField] private LayerMask obstacleLayer;  // Algılanacak katman
 
     [Header("Takip Ayarları")]
     [SerializeField] private float followDistance = 2.5f;
@@ -42,7 +39,6 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     private NavMeshAgent agent;
     private IInteractable pendingInteractable;
     private float nextRepathTime;
-    private Collider lastSeenCollider;
 
     public CompanionState CurrentState { get; private set; } = CompanionState.Idle;
 
