@@ -8,4 +8,5 @@ public static class SceneLoader
     public const string Village = "MainScene";   // sahne adı değişirse sadece burası güncellenecek
 
     public static void Load(string sceneName) => SceneManager.LoadScene(sceneName);
+    public const string Intro = "IntroScene";
 }
