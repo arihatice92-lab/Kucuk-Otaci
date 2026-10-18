@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-//Fındık yürürken burnundan ileriye doğru kırmızı bir çizgi çıktığını ve nesneleri gördüğünde alt kısımdaki Console paneline log düştüğü görülecek.
+
 public enum CompanionState
 {
     Idle,
@@ -10,14 +10,12 @@ public enum CompanionState
     ReturningToPlayer
 }
 
-
 [RequireComponent(typeof(NavMeshAgent))]
 public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
 {
     [Header("Referanslar")]
     [SerializeField] private Transform playerTransform;
     [SerializeField] private GameObject targetObject;
-
 
     [Header("Takip Ayarları")]
     [SerializeField] private float followDistance = 2.5f;
@@ -50,7 +48,6 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         if (sensor == null) sensor = GetComponent<CompanionSensor>();
     }
 
-    // ---- Komut girişi (ICompanionCommandReceiver) ----
     public void Receive(CompanionCommand command)
     {
         Debug.Log($"[Fındık FSM] Komut alındı: {command.Type}");
@@ -81,7 +78,6 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         }
     }
 
-    // Eski kullanım: Inspector'daki targetObject'e git ve etkileşime gir
     public void OrderGoToTarget()
     {
         if (targetObject == null) return;
@@ -93,14 +89,12 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
 
     private void UpdateInteracting()
     {
-        // Sensör ya da hedef yoksa eski davranışa düş
         if (sensor == null || pendingTarget == null)
         {
             ExecuteInteraction();
             return;
         }
 
-        // Hedefe doğru dön (sensörün baktığı noktaya)
         Vector3 aim = sensor.GetAimPoint(pendingTarget);
         Vector3 dir = aim - transform.position;
         dir.y = 0f;
@@ -120,7 +114,7 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
             Debug.Log($"[Fındık Sensör] Hedef: {pendingTarget.name} | Mesafe: {obs.Distance:F1} m | Açı: {obs.Angle:F0}° | Görüş: {(obs.HasLineOfSight ? "açık" : "engelli: " + obs.BlockerName)}");
         }
 
-        if (inRange && facing && obs.HasLineOfSight)
+        if ((inRange && facing) || obs.HasLineOfSight)
         {
             ExecuteInteraction();
             return;
@@ -128,18 +122,13 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
 
         if (Time.time - interactStartTime > interactTimeout)
         {
-            Debug.LogWarning($"[Fındık FSM] Etkileşim iptal: menzil={inRange}, yön={facing}, görüş={obs.HasLineOfSight}");
-            agent.updateRotation = true;
-            pendingInteractable = null;
-            pendingTarget = null;
-            CurrentState = CompanionState.Idle;
+            Debug.LogWarning($"[Fındık FSM] Etkileşim zaman aşımı, zorla yürütülüyor: menzil={inRange}, yön={facing}");
+            ExecuteInteraction();
         }
     }
+
     private void Update()
     {
-        
-
-        // 2. FSM Durum Kontrolleri
         switch (CurrentState)
         {
             case CompanionState.Interacting:
@@ -151,28 +140,41 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
                 break;
 
             case CompanionState.MovingToTarget:
-                if (HasStopped())
+                // İlk 0.3 saniye Unity yolu hesaplayıp ajan hızlanana kadar durdu sayma:
+                if (Time.time - stateEnteredTime > 0.3f && HasStopped())
                 {
-                    if (!IsNear(destination, agent.stoppingDistance + arrivalTolerance))
+                    bool reachedPoint = IsNear(destination, agent.stoppingDistance + arrivalTolerance + 1.0f);
+                    bool nearInteractable = false;
+
+                    if (pendingInteractable is Component targetComp)
+                    {
+                        float distToTarget = Vector3.Distance(transform.position, targetComp.transform.position);
+                        nearInteractable = distToTarget <= 3.5f;
+                    }
+
+                    if (reachedPoint || nearInteractable)
+                    {
+                        if (pendingInteractable != null)
+                        {
+                            CurrentState = CompanionState.Interacting;
+                            interactStartTime = Time.time;
+                            agent.updateRotation = false;
+                        }
+                        else
+                        {
+                            CurrentState = CompanionState.Idle;
+                            Debug.Log("[Fındık FSM] Hedefe vardım.");
+                        }
+                    }
+                    else
                     {
                         Debug.LogWarning("[Fındık FSM] Hedefe ulaşamadım (yol kapalı olabilir).");
                         pendingInteractable = null;
                         CurrentState = CompanionState.Idle;
                     }
-                    else if (pendingInteractable != null)
-                    {
-                        CurrentState = CompanionState.Interacting;
-                        interactStartTime = Time.time;
-                        agent.updateRotation = false;
-                    }
-                    else
-                    {
-                        CurrentState = CompanionState.Idle;
-                        Debug.Log("[Fındık FSM] Hedefe vardım.");
-                    }
                 }
                 break;
-
+                
             case CompanionState.ReturningToPlayer:
                 {
                     if (playerTransform == null)
@@ -223,18 +225,23 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         }
     }
 
-    private void MoveTo(Vector3 worldPosition, float searchRadius = 2.0f)
+  private void MoveTo(Vector3 worldPosition, float searchRadius = 5.0f)
     {
-        // Tıklanan nokta NavMesh dışında olabilir; en yakın yürünebilir noktaya çek
         if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit navHit, searchRadius, NavMesh.AllAreas))
         {
             Debug.LogWarning("[Fındık FSM] Hedef yürünebilir alanda değil, komut yok sayıldı.");
             return;
         }
 
-        agent.isStopped = false;
-        agent.SetDestination(navHit.position);
+        if (agent != null)
+        {
+            agent.isStopped = false;
+            agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, 1.8f);
+            agent.SetDestination(navHit.position);
+        }
+
         destination = navHit.position;
+        stateEnteredTime = Time.time; 
         CurrentState = CompanionState.MovingToTarget;
     }
 
@@ -256,7 +263,6 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         Vector3 b = target; b.y = 0f;
         return Vector3.Distance(a, b) <= tolerance;
     }
-    
 
     private void ExecuteInteraction()
     {
