@@ -827,9 +827,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7974ec14ee8dc745b47bb0b737b6dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FindikAnimatorDriver
-  agent: {fileID: 0}
-  anim: {fileID: 0}
+  agent: {fileID: 1227708289}
+  anim: {fileID: 1817975259}
   speedParam: Speed
+  deadZone: 0.4
+  dampTime: 0.1
 --- !u!1001 &248787322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1219,6 +1221,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModelSelector
   girlModel: {fileID: 5938499562447199979}
   boyModel: {fileID: 5938499562447199980}
+--- !u!114 &339613143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339613133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8bd5e198b2c465438070ed7497d8a50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimatorDriver
+  speedParameter: Speed
+  damping: 12
 --- !u!1 &403193102
 GameObject:
   m_ObjectHideFlags: 0
@@ -7341,6 +7357,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1698535943}
   m_CullTransparentMesh: 1
+--- !u!1 &1699692262
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1699692264}
+  - component: {fileID: 1699692263}
+  m_Layer: 0
+  m_Name: MapBoundary
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1699692263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699692262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52cbc60ca7633bc4db5dd132d6a1c15c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapBoundary
+  min: {x: -24, y: -24}
+  max: {x: 24, y: 24}
+  wallHeight: 20
+  wallThickness: 2
+  baseY: -5
+--- !u!4 &1699692264
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699692262}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1721957461
 GameObject:
   m_ObjectHideFlags: 0
@@ -7910,6 +7975,8 @@ MonoBehaviour:
   agent: {fileID: 1227708289}
   anim: {fileID: 1817975259}
   speedParam: Speed
+  deadZone: 0.4
+  dampTime: 0.1
 --- !u!95 &1817975259
 Animator:
   serializedVersion: 7
@@ -9923,6 +9990,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 541939690892634168, guid: ea2041a4b4472da43b925744f09db432, type: 3}
       insertIndex: -1
       addedObject: {fileID: 339613142}
+    - targetCorrespondingSourceObject: {fileID: 541939690892634168, guid: ea2041a4b4472da43b925744f09db432, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 339613143}
     - targetCorrespondingSourceObject: {fileID: 6091235037024759944, guid: ea2041a4b4472da43b925744f09db432, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5938499562447199982}
@@ -9950,7 +10020,7 @@ Animator:
   m_GameObject: {fileID: 5938499562447199979}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
-  m_Controller: {fileID: 9100000, guid: 6550bb074d59a5d48bdb9afad6b08c51, type: 2}
+  m_Controller: {fileID: 9100000, guid: 08806005960a26c4fbe1d6eff785f4a1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -9972,7 +10042,7 @@ Animator:
   m_GameObject: {fileID: 5938499562447199980}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
-  m_Controller: {fileID: 9100000, guid: 6550bb074d59a5d48bdb9afad6b08c51, type: 2}
+  m_Controller: {fileID: 9100000, guid: 08806005960a26c4fbe1d6eff785f4a1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10016,3 +10086,4 @@ SceneRoots:
   - {fileID: 581380525}
   - {fileID: 1892292237}
   - {fileID: 1143459123}
+  - {fileID: 1699692264}
