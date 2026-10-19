@@ -236,7 +236,7 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
         if (agent != null)
         {
             agent.isStopped = false;
-            agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, 1.8f);
+            agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, 2.5f);
             agent.SetDestination(navHit.position);
         }
 
