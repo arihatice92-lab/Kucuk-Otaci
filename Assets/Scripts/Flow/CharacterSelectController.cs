@@ -48,6 +48,6 @@ public class CharacterSelectController : MonoBehaviour
         confirmButton.interactable = false; // çift tıklamayı engeller
         GameSession.SelectCharacter(selected.Character);
         Debug.Log("[CharacterSelect] Seçilen karakter: " + selected.Character);
-        SceneLoader.Load(SceneLoader.Intro); // Ara sahne eklenince burası Intro olacak
+        SceneLoader.Load(SceneLoader.Village);
     }
 }
