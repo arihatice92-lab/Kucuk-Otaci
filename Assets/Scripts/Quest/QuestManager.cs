@@ -9,7 +9,9 @@ public enum QuestId
     SnakeResolved,    // Erzak yılana verildi, yol açıldı
     DebrisCleared,    // Selin getirdiği çöpler toplandı
     KittenRescued,    // Fındık ağaçta mahsur kalan kedi yavrusunu kurtardı
-    HerbsCollected    // Oyuncu gereken sayıda şifalı otu topladı
+    HerbsCollected,   // Oyuncu gereken sayıda şifalı otu topladı
+    FloodReceded      // Baraj kolu çekildi, sel suyu çekildi
+    
 }
 
 // Görev durumunu okumak isteyen sınıflar (Validator, DialogueManager vb.)
@@ -39,7 +41,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
         { QuestId.SnakeResolved,  "yoldaki yılana erzak verilip geçildi" },
         { QuestId.DebrisCleared,  "selin getirdiği çöpler toplandı" },
         { QuestId.KittenRescued,  "ağaçta mahsur kalan kedi yavrusu kurtarıldı" },
-        { QuestId.HerbsCollected,  "şifalı otlar toplandı" }
+        { QuestId.HerbsCollected,  "şifalı otlar toplandı" },
+        { QuestId.FloodReceded,    "baraj kolu çekilip sel suyu çekildi" }
     };
     private static readonly Dictionary<QuestId, string> MissingFacts = new Dictionary<QuestId, string>
 {
@@ -47,7 +50,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
     { QuestId.SnakeResolved,  "Yoldaki yılan hâlâ yolu kapatıyor." },
     { QuestId.DebrisCleared,  "Selin getirdiği çöpler hâlâ toplanmadı." },
     { QuestId.KittenRescued,  "Ağaçtaki kedi yavrusu hâlâ kurtarılmadı." },
-    { QuestId.HerbsCollected,  "Şifalı otlar hâlâ toplanmadı." }
+    { QuestId.HerbsCollected,  "Şifalı otlar hâlâ toplanmadı." },
+    { QuestId.FloodReceded,    "Sel suyu hâlâ çekilmedi." }
 };
 
     private static readonly Dictionary<QuestId, string[]> MissingKeywords = new Dictionary<QuestId, string[]>
@@ -56,7 +60,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
     { QuestId.SnakeResolved,  new[] { "yılan" } },
     { QuestId.DebrisCleared,  new[] { "çöp"} },
     { QuestId.KittenRescued,  new[] { "kedi", "yavru" } },
-    { QuestId.HerbsCollected,  new[] { "şifalı", "bitki", "otlar" } }
+    { QuestId.HerbsCollected,  new[] { "şifalı", "bitki", "otlar" } },
+    { QuestId.FloodReceded,    new[] { "sel suyu", "baraj", "taşkın" } }
 };
 
     private void Awake()
@@ -109,10 +114,10 @@ public class QuestManager : MonoBehaviour, IQuestProgress
 
         return $"Oyuncunun yaptığı işler: {doneText}. Eksik işler: {missingText}. {rule}";
     }
-    
+
     /// Tamamlanmamış ilk görevi (enum sırasına göre) döndürür.
     /// Cümleyi kurmaz, yalnızca olguyu ve doğrulama anahtar kelimelerini verir.
-   
+
     public bool TryGetMissingHint(out string fact, out string[] keywords)
     {
         foreach (QuestId id in System.Enum.GetValues(typeof(QuestId)))

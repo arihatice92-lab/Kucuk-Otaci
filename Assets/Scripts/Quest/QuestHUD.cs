@@ -17,7 +17,8 @@ public class QuestHUD : MonoBehaviour
         { QuestId.SnakeResolved,  "Yılana erzak ver" },
         { QuestId.DebrisCleared,  "Selin çöplerini topla" },
         { QuestId.KittenRescued,  "Kediyi kurtar" },
-        { QuestId.HerbsCollected, "Şifalı otları topla" }
+        { QuestId.HerbsCollected, "Şifalı otları topla" },
+        { QuestId.FloodReceded,   "Sel suyunu çek" }
     };
 
     private QuestManager quests;

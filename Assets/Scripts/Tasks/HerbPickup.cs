@@ -22,7 +22,7 @@ public class HerbPickup : MonoBehaviour, IPlayerInteractable
     private void Awake()
     {
         if (inventory == null)
-            inventory = FindFirstObjectByType<PlayerInventory>();
+            inventory = FindAnyObjectByType<PlayerInventory>();
     }
 
     public void InteractByPlayer()
