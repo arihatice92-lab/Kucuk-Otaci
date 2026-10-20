@@ -518,6 +518,7 @@ MonoBehaviour:
   openOffset: {x: 0, y: 4, z: 0}
   openSpeed: 2
   npcController: {fileID: 551632230}
+  openSound: {fileID: 0}
 --- !u!1001 &203843726
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1561,7 +1562,7 @@ Transform:
   m_GameObject: {fileID: 341942538}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3842,7 +3843,7 @@ Transform:
   m_GameObject: {fileID: 689224681}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3873,7 +3874,7 @@ Transform:
   m_GameObject: {fileID: 735095899}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5027,23 +5028,23 @@ MonoBehaviour:
   shots:
   - cameraStart: {fileID: 1296261105}
     cameraEnd: {fileID: 2059010032}
-    duration: 5
+    duration: 6
     subtitle: "Lokmaneli, da\u011Flar\u0131n aras\u0131nda sakl\u0131 k\xFC\xE7\xFCk bir k\xF6yd\xFCr."
   - cameraStart: {fileID: 1420108629}
     cameraEnd: {fileID: 1328328731}
-    duration: 5
+    duration: 6
     subtitle: "Her y\u0131l hasad\u0131n sonunda b\xFCt\xFCn k\xF6y Hasat \u015Eenli\u011Fi\u2019nde bir araya gelir."
   - cameraStart: {fileID: 1448882731}
     cameraEnd: {fileID: 735095900}
-    duration: 5
+    duration: 6
     subtitle: "Ama bu y\u0131l ya\u011Fmurlar yolu y\u0131kt\u0131."
   - cameraStart: {fileID: 664240308}
     cameraEnd: {fileID: 341942539}
-    duration: 5
+    duration: 6
     subtitle: "\u015Eenli\u011Fe yard\u0131m etmeye geldin. Yan\u0131nda sad\u0131k dostun F\u0131nd\u0131k var."
   - cameraStart: {fileID: 1248256738}
     cameraEnd: {fileID: 689224682}
-    duration: 5
+    duration: 6
     subtitle: "Kap\u0131y\u0131 Basri Amca bekler. K\xF6ye yard\u0131m etmeyene kap\u0131y\u0131 a\xE7maz."
   fadeDuration: 1
   playOnStart: 1
@@ -7074,7 +7075,7 @@ Transform:
   m_GameObject: {fileID: 1328328730}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8690,6 +8691,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1494275157}
   m_CullTransparentMesh: 1
+--- !u!1 &1500166400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1500166401}
+  m_Layer: 0
+  m_Name: GateEndingCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1500166401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500166400}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.10158884, y: 0.06740164, z: -0.0068974877, w: -0.9925166}
+  m_LocalPosition: {x: 7.663475, y: 1.6987128, z: -4.065427}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1518205762
 GameObject:
   m_ObjectHideFlags: 0
@@ -12438,7 +12470,7 @@ Transform:
   m_GameObject: {fileID: 2059010031}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13088,3 +13120,4 @@ SceneRoots:
   - {fileID: 1143459123}
   - {fileID: 837454567}
   - {fileID: 213384788}
+  - {fileID: 1500166401}

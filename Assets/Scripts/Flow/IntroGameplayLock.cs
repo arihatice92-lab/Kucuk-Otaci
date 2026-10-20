@@ -40,7 +40,7 @@ public class IntroGameplayLock : MonoBehaviour
         intro.Finished -= Unlock;
     }
 
-    private void Lock()
+    public void Lock()
     {
         DisableBehaviour(cameraFollow);
         DisableBehaviour(playerMovement);
@@ -55,7 +55,7 @@ public class IntroGameplayLock : MonoBehaviour
         }
     }
 
-    private void Unlock()
+    public void Unlock()
     {
         foreach (Behaviour behaviour in disabledBehaviours)
         {
