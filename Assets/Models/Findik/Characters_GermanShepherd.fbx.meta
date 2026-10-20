@@ -3,7 +3,17 @@ guid: 18a02b7974c4bf640992aa06d3ae8492
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Atlas
+    second: {fileID: 2100000, guid: 01b8d43fbffc0b840905c1822518c8fa, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Zombie_Atlas
+    second: {fileID: 2800000, guid: 04a4d51956e31e44fb2997853a75c069, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
