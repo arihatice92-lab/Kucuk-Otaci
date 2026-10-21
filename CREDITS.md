@@ -37,7 +37,7 @@ Not: Standout 7 paketinin sayfasında "ham dosyaları yeniden satmayın / dağı
 |---|---|---|---|---|
 | Birds' forest | ShidenBeatsMusic | https://pixabay.com/music/meditationspiritual-birds39-forest-20772/ | Pixabay Content License (atıf zorunlu değil, teşekkür olarak yazıldı) | Ana menü müziği |
 | SFX_AmbienceClose (`Assets/SourceFiles/SoundFX`) | Unity Technologies | Unity 6 proje şablonuyla gelen örnek içerik | Unity proje şablonu örnek varlığı | Ortam sesi (rüzgâr) |
-
+|Sliding Door | Zoey.holt | https://pixabay.com/sound-effects/household-sliding-door-6758/ |  Pixabay Content License | Kapı açılış sesi | 
 ## Yazılım
 
 - Unity 6 (6000.6.3f1)

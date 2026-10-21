@@ -75,7 +75,7 @@ public class DialogueManager : MonoBehaviour
             text,
             result,
             true,
-            quests.AllCompleted //test aşamasında true girilebilir, girilmezse aşamalar tamamlanmadığı için kapı hiç açılmıyor.
+            quests.AllCompleted
         );
 
         // Kapıyı yalnızca eksik görevler engelliyorsa: eksik işin olgusunu LLM'ye ver, ipucu cümlesini o kursun
