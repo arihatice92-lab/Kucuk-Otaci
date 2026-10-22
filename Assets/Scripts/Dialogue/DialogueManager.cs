@@ -74,7 +74,7 @@ public class DialogueManager : MonoBehaviour
         result = NpcDecisionValidator.Validate(
             text,
             result,
-            true,
+            quests.IsCompleted(QuestId.HerbsCollected),
             quests.AllCompleted
         );
 
