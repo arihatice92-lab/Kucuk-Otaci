@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: 4977d761c63fe5b458bc0def54f7fe8b
+labels:
+- Water
+- Weapon
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
