@@ -118,7 +118,7 @@ public class NpcClickDialogueTrigger : MonoBehaviour
     bool ClickedOnThisNpc()
     {
         if (cam == null) cam = Camera.main;
-        if (cam == null) cam = FindFirstObjectByType<Camera>();
+        if (cam == null) cam = FindAnyObjectByType<Camera>();
         if (cam == null)
         {
             if (debugLog) Debug.LogWarning("[Basri] Kamera bulunamadı.");

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -10,16 +9,6 @@ using UnityEngine;
 public class QuestHUD : MonoBehaviour
 {
     [SerializeField] private TMP_Text label;
-
-    private static readonly Dictionary<QuestId, string> Titles = new Dictionary<QuestId, string>
-    {
-        { QuestId.BridgeRepaired, "Köprüyü onar" },
-        { QuestId.SnakeResolved,  "Yılana erzak ver" },
-        { QuestId.DebrisCleared,  "Selin çöplerini topla" },
-        { QuestId.KittenRescued,  "Kediyi kurtar" },
-        { QuestId.HerbsCollected, "Şifalı otları topla" },
-        { QuestId.FloodReceded,   "Sel suyunu çek" }
-    };
 
     private QuestManager quests;
 
@@ -51,7 +40,7 @@ public class QuestHUD : MonoBehaviour
         var text = new StringBuilder();
         int doneCount = 0;
 
-        foreach (var pair in Titles)
+        foreach (var pair in QuestTitles.All)
         {
             if (quests.IsCompleted(pair.Key))
             {
@@ -64,6 +53,6 @@ public class QuestHUD : MonoBehaviour
             }
         }
 
-        label.text = $"<b>Görevler ({doneCount}/{Titles.Count})</b>\n{text}";
+        label.text = $"<b>Görevler ({doneCount}/{QuestTitles.All.Count})</b>\n{text}";
     }
 }

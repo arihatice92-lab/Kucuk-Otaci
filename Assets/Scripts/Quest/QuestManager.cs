@@ -10,8 +10,9 @@ public enum QuestId
     DebrisCleared,    // Selin getirdiği çöpler toplandı
     KittenRescued,    // Fındık ağaçta mahsur kalan kedi yavrusunu kurtardı
     HerbsCollected,   // Oyuncu gereken sayıda şifalı otu topladı
-    FloodReceded      // Baraj kolu çekildi, sel suyu çekildi
-    
+    FloodReceded,      // Baraj kolu çekildi, sel suyu çekildi
+    TreeCleared       // Fındık yolu kapatan devrilmiş ağacı kaldırdı
+
 }
 
 // Görev durumunu okumak isteyen sınıflar (Validator, DialogueManager vb.)
@@ -42,7 +43,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
         { QuestId.DebrisCleared,  "selin getirdiği çöpler toplandı" },
         { QuestId.KittenRescued,  "ağaçta mahsur kalan kedi yavrusu kurtarıldı" },
         { QuestId.HerbsCollected,  "şifalı otlar toplandı" },
-        { QuestId.FloodReceded,    "baraj kolu çekilip sel suyu çekildi" }
+        { QuestId.FloodReceded,    "baraj kolu çekilip sel suyu çekildi" },
+        { QuestId.TreeCleared,     "yolu kapatan devrilmiş ağaç kaldırıldı" }
     };
     private static readonly Dictionary<QuestId, string> MissingFacts = new Dictionary<QuestId, string>
 {
@@ -51,7 +53,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
     { QuestId.DebrisCleared,  "Selin getirdiği çöpler hâlâ toplanmadı." },
     { QuestId.KittenRescued,  "Ağaçtaki kedi yavrusu hâlâ kurtarılmadı." },
     { QuestId.HerbsCollected,  "Şifalı otlar hâlâ toplanmadı." },
-    { QuestId.FloodReceded,    "Sel suyu hâlâ çekilmedi." }
+    { QuestId.FloodReceded,    "Sel suyu hâlâ çekilmedi." },
+    { QuestId.TreeCleared,     "Yolu kapatan devrilmiş ağaç hâlâ kaldırılmadı." }
 };
 
     private static readonly Dictionary<QuestId, string[]> MissingKeywords = new Dictionary<QuestId, string[]>
@@ -61,7 +64,8 @@ public class QuestManager : MonoBehaviour, IQuestProgress
     { QuestId.DebrisCleared,  new[] { "çöp"} },
     { QuestId.KittenRescued,  new[] { "kedi", "yavru" } },
     { QuestId.HerbsCollected,  new[] { "şifalı", "bitki", "otlar" } },
-    { QuestId.FloodReceded,    new[] { "sel suyu", "baraj", "taşkın" } }
+    { QuestId.FloodReceded,    new[] { "sel suyu", "baraj", "taşkın" } },
+    { QuestId.TreeCleared,     new[] { "ağaç", "devril" } }
 };
 
     private void Awake()
