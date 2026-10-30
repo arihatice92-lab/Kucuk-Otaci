@@ -5657,6 +5657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionTask
   interactionPrompt: "A\u011Fac\u0131 kald\u0131r"
   doneMessage: "F\u0131nd\u0131k devrilmi\u015F a\u011Fac\u0131 yoldan \xE7ekti!"
+  approachRadius: 3.5
   completesQuest: 1
   quest: 6
   disableOnDone:
@@ -12006,6 +12007,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionTask
   interactionPrompt: Kediyi kurtar
   doneMessage: "F\u0131nd\u0131k kediyi sa\u011F salim a\u015Fa\u011F\u0131 indirdi!"
+  approachRadius: 9
   completesQuest: 1
   quest: 3
   disableOnDone:
@@ -12201,6 +12203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionTask
   interactionPrompt: "K\xF6pr\xFCy\xFC onar"
   doneMessage: "F\u0131nd\u0131k k\xF6pr\xFCy\xFC onard\u0131!"
+  approachRadius: 3.5
   completesQuest: 1
   quest: 0
   disableOnDone:
@@ -13212,6 +13215,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionTask
   interactionPrompt: "F\u0131nd\u0131k g\xF6revi"
   doneMessage: "Kedi kurtar\u0131ld\u0131!"
+  approachRadius: 3.5
   completesQuest: 1
   quest: 3
   disableOnDone:

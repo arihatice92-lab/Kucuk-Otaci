@@ -73,7 +73,8 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
             case CompanionCommandType.Interact:
                 pendingInteractable = command.Target;
                 pendingTarget = (command.Target as Component)?.transform;
-                MoveTo(command.TargetPosition, 4.0f);
+                // Geniş yaklaşma alanı olan nesnelerde NavMesh noktası da daha geniş aranır
+                MoveTo(command.TargetPosition, Mathf.Max(4.0f, GetApproachRadius(command.Target)));
                 break;
         }
     }
@@ -148,8 +149,9 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
 
                     if (pendingInteractable is Component targetComp)
                     {
-                        float distToTarget = Vector3.Distance(transform.position, targetComp.transform.position);
-                        nearInteractable = distToTarget <= 3.5f;
+                        // Yatay mesafe: ağaçtaki kedi gibi yüksekteki hedefler yüzünden reddedilmesin
+                        float distToTarget = FlatDistance(transform.position, targetComp.transform.position);
+                        nearInteractable = distToTarget <= GetApproachRadius(pendingInteractable);
                     }
 
                     if (reachedPoint || nearInteractable)
@@ -255,6 +257,21 @@ public class CompanionController : MonoBehaviour, ICompanionCommandReceiver
     private bool HasStopped()
     {
         return !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f;
+    }
+
+    private const float DefaultApproachRadius = 3.5f;
+
+    private static float GetApproachRadius(IInteractable target)
+    {
+        return target is IApproachRange range
+            ? Mathf.Max(DefaultApproachRadius, range.ApproachRadius)
+            : DefaultApproachRadius;
+    }
+
+    private static float FlatDistance(Vector3 a, Vector3 b)
+    {
+        a.y = 0f; b.y = 0f;
+        return Vector3.Distance(a, b);
     }
 
     private bool IsNear(Vector3 target, float tolerance)

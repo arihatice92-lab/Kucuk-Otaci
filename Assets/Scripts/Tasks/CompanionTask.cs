@@ -5,11 +5,15 @@ using UnityEngine.Events;
 // Aynı sınıf köprü onarımı, devrilen ağacın kaldırılması ve kedi kurtarma için kullanılır;
 // farkı yalnızca Inspector'daki ayarlardır (SOLID - tek sınıf, ayarla çeşitlenen davranış).
 // Oyuncu Fındık'a sağ tıkla komut verince Fındık nesneye gider ve Interact() çağrılır.
-public class CompanionTask : MonoBehaviour, IInteractable
+public class CompanionTask : MonoBehaviour, IInteractable, IApproachRange
 {
     [Header("Etkileşim")]
     [SerializeField] private string interactionPrompt = "Fındık görevi";
     [SerializeField] private string doneMessage = "";   // Tamamlanınca ekranda gösterilir (boşsa gösterilmez)
+
+    [Header("Yaklaşma")]
+    [Tooltip("Fındık nesneye bu yatay mesafeye (m) girince etkileşime başlar. Ağaçtaki kedi için 6-7 deneyin.")]
+    [SerializeField] private float approachRadius = 3.5f;
 
     [Header("Görev")]
     [SerializeField] private bool completesQuest = true;   // Ağaç gibi ön adımlarda kapat
@@ -23,6 +27,7 @@ public class CompanionTask : MonoBehaviour, IInteractable
     public bool IsDone { get; private set; }
 
     public string InteractionPrompt => interactionPrompt;
+    public float ApproachRadius => approachRadius;
 
     public void Interact()
     {
