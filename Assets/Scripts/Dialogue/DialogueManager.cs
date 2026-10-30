@@ -10,21 +10,38 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private Button sendButton;
     [SerializeField] private GameObject thinkingIndicator;
 
+    // Unity arayüz tipli alanları Inspector'da göstermez. Alan adları değişmediği için sahnedeki
+    // atamalar korunur. Alanlar Awake'te arayüze çevrilir (ILlmClient, IQuestProgress).
     [Header("Bağlantılar")]
-    [SerializeField] private OllamaClient client;
+    [Tooltip("ILlmClient uygulayan bileşen (ör. OllamaClient)")]
+    [SerializeField] private MonoBehaviour client;
     [SerializeField] private NpcController npcController;
 
     [Header("Görevler")]
-    [SerializeField] private QuestManager quests;
+    [Tooltip("IQuestProgress uygulayan bileşen (ör. QuestManager)")]
+    [SerializeField] private MonoBehaviour quests;
 
+    private ILlmClient llm;
+    private IQuestProgress progress;
     private bool isWaiting;
+
+    private void Awake()
+    {
+        llm = client as ILlmClient;
+        progress = quests as IQuestProgress;
+
+        if (llm == null || progress == null)
+        {
+            Debug.LogError("[DialogueManager] 'client' ILlmClient, 'quests' IQuestProgress uygulamıyor ya da atanmamış. Diyalog devre dışı.", this);
+            enabled = false;
+        }
+    }
 
     private void Start()
     {
         thinkingIndicator.SetActive(false);
         playerInput.characterLimit = 200;
-        Application.targetFrameRate = 30;
-        StartCoroutine(client.Warmup());
+        StartCoroutine(llm.Warmup());
     }
 
     private void OnEnable()
@@ -65,7 +82,7 @@ public class DialogueManager : MonoBehaviour
 
 
         NpcResult result = null;
-        yield return client.Send(text, r => result = r);
+        yield return llm.Send(text, r => result = r);
 
         NpcDecision hamKarar = result.Decision;
         bool yenidenUretildi = false;
@@ -74,21 +91,21 @@ public class DialogueManager : MonoBehaviour
         result = NpcDecisionValidator.Validate(
             text,
             result,
-            quests.IsCompleted(QuestId.HerbsCollected),
-            quests.AllCompleted
+            progress.IsCompleted(QuestId.HerbsCollected),
+            progress.AllCompleted
         );
 
         // Kapıyı yalnızca eksik görevler engelliyorsa: eksik işin olgusunu LLM'ye ver, ipucu cümlesini o kursun
         string hintFact = null;
         string[] hintKeywords = null;
         bool needsHint = result.Success && result.DeniedByMissingQuests
-                         && quests.TryGetMissingHint(out hintFact, out hintKeywords);
+                         && progress.TryGetMissingHint(out hintFact, out hintKeywords);
 
         // Unity kararı değiştirdiyse VEYA cümle karakter dışıysa (prompt sızıntısı) LLM cümleyi yeniden üretsin
         bool outOfCharacter = result.Success &&
             (NpcDecisionValidator.LooksOutOfCharacter(result.Dialogue) ||
              NpcDecisionValidator.ContradictsDecision(result.Decision, result.Dialogue) ||
-             client.IsSeedCopy(result.Dialogue));
+             llm.IsSeedCopy(result.Dialogue));
 
         if (result.Success && (result.DecisionOverridden || outOfCharacter || needsHint))
         {
@@ -100,19 +117,19 @@ public class DialogueManager : MonoBehaviour
             bool ok = false;
             NpcResult fallback = null;   // ipucu dışındaki tüm kontrolleri geçen son cümle
 
-            if (needsHint) client.SetGameState(hintFact);
+            if (needsHint) llm.SetGameState(hintFact);
             Debug.Log($"[Dialogue] İpucu modu: {needsHint} | Olgu: {hintFact}");
 
             for (int attempt = 0; attempt < 2 && !ok; attempt++)
             {
                 NpcResult r2 = null;
-                yield return client.Regenerate(text, finalDecision, r => r2 = r);
+                yield return llm.Regenerate(text, finalDecision, r => r2 = r);
 
                 string d2 = r2 != null ? r2.Dialogue : null;
                 bool valid = r2 != null && r2.Success
                              && !NpcDecisionValidator.LooksOutOfCharacter(d2)
                              && !NpcDecisionValidator.ContradictsDecision(finalDecision, d2)
-                             && !client.IsSeedCopy(d2);
+                             && !llm.IsSeedCopy(d2);
                 bool hasHint = !needsHint || MentionsAny(d2, hintKeywords);
                 ok = valid && hasHint;
 
@@ -124,7 +141,7 @@ public class DialogueManager : MonoBehaviour
                 }
             }
 
-            if (needsHint) client.SetGameState("");
+            if (needsHint) llm.SetGameState("");
             if (!ok && fallback != null)
             {
                 regenerated = fallback;
