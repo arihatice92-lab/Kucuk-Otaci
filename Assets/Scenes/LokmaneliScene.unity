@@ -534,6 +534,72 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 78e8ef7ffa868bd4ca517caaddcedda6, type: 3}
   m_PrefabInstance: {fileID: 59567345}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &73585275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 73585277}
+  - component: {fileID: 73585276}
+  m_Layer: 0
+  m_Name: TestRunner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &73585276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73585275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2691a0ecf82a08439d2d75cd5aae9b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompanionTestRunner
+  companion: {fileID: 1227708294}
+  startCenter: {fileID: 339613137}
+  disableDuringTest:
+  - {fileID: 1089134601}
+  - {fileID: 5938499562447199983}
+  targets:
+  - label: Baraj Kolu
+    target: {fileID: 1037870058}
+  - label: Kedi
+    target: {fileID: 1446645775}
+  - label: Cop
+    target: {fileID: 561907095}
+  - label: Kopru
+    target: {fileID: 1455789780}
+  seed: 42
+  startsPerTarget: 6
+  repeatsPerStart: 2
+  minStartRadius: 8
+  maxStartRadius: 30
+  minTripDistance: 6
+  trialTimeoutSeconds: 30
+  timeScale: 1
+--- !u!4 &73585277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73585275}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.46367, y: 7.04287, z: -14.31839}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &91260566
 GameObject:
   m_ObjectHideFlags: 0
@@ -5477,7 +5543,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OllamaClient
   baseUrl: http://localhost:11434
   model: gemma2:2b
-  timeoutSeconds: 120
+  timeoutSeconds: 1
   systemPrompt: "Sen Basri Amca's\u0131n, k\xF6y\xFCn kap\u0131s\u0131n\u0131 bekleyen ya\u015Fl\u0131 bir bek\xE7isin. Huysuz, \u015F\xFCpheci ve geleneksel biri olsan da \xF6z\xFCnde iyi niyetlisin. G\xF6revin k\xF6ye yabanc\u0131lar\u0131n kontrols\xFCz girmesini \xF6nlemek, ama Hasat \u015Eenli\u011Fi'ne yard\u0131m etmeye gelenleri memnuniyetle kar\u015F\u0131lars\u0131n. Kar\u015F\u0131ndaki ki\u015Fiyle do\u011Frudan konu\u015Fursun; ona \u2018sen\u2019 ya da \u2018evlad\u0131m\u2019 diye hitap edersin. Onun hakk\u0131nda \xFC\xE7\xFCnc\xFC ki\u015Fi gibi konu\u015Fmaz, \u2018yabanc\u0131\u2019 ya da \u2018oyuncu\u2019 kelimelerini kullanmazs\u0131n. Oyuncunun c\xFCmlesini tekrar etmezsin. Soru soran ya da belirsiz konu\u015Fan ki\u015Fiye soru sorarak kar\u015F\u0131l\u0131k verirsin (ASK_MORE); REFUSE yaln\u0131zca a\xE7\u0131k hakaret veya tehdit varsa se\xE7ilir. Cevaplar\u0131n k\u0131sa, do\u011Fal ve kendi a\u011Fz\u0131ndan olur."
 --- !u!114 &637284490
 MonoBehaviour:
@@ -18469,3 +18535,4 @@ SceneRoots:
   - {fileID: 853929155}
   - {fileID: 1378439555}
   - {fileID: 204286900}
+  - {fileID: 73585277}
