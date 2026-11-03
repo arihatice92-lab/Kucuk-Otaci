@@ -1,5 +1,7 @@
 # Küçük Otacı
 
+**Tarih:** 6 Kasım 2026
+
 Yazılım Geliştirme Laboratuvarı-I dersi projesi. Unity 6 ve C# ile geliştirilmiş, yerel LLM destekli 3D macera oyunu.
 
 ## Ekip
@@ -8,6 +10,17 @@ Yazılım Geliştirme Laboratuvarı-I dersi projesi. Unity 6 ve C# ile geliştir
 |----|------------|------|
 | Meryem DEMİR | 241307039 | 9 |
 | Hatice ARI | 241307071 | 9 |
+
+## Problem Tanımı
+
+Oyunlarda yardımcı karakterler çoğunlukla elle yazılmış hareket betikleriyle, konuşan karakterler ise sabit diyalog ağaçlarıyla çalışır. Bu yaklaşımda yardımcı karakter ortama göre karar veremez, oyuncu da karakterle serbest metinle konuşamaz.
+
+Bu projede iki sorun birlikte ele alınmıştır:
+
+1. **Otonom hareket:** Oyuncunun verdiği komutu (ör. "köprüye git") yorumlayıp engelleri aşarak hedefe kendi yolunu bulan, ne zaman etkileşime gireceğine çevresini algılayarak karar veren bir yardımcı karakter (Fındık).
+2. **Serbest diyalog:** Oyuncunun yazdığı metni anlayıp cevabı kendisi üreten, ama oyunun kurallarını bozamayan bir NPC (Basri Amca). Cevap, yerel çalışan bir LLM tarafından üretilir; oyun için kritik karar (kapıyı açma) LLM'ye bırakılmaz, Unity tarafından doğrulanır.
+
+Tüm yapay zekâ bileşenleri internet bağlantısı gerektirmeden, kullanıcının bilgisayarında çalışır. Hazır NPC cevabı ya da betik hareket kullanılmamıştır.
 
 ## Proje Amacı
 
@@ -123,6 +136,58 @@ Sen Basri Amca'sın, köyün kapısını bekleyen yaşlı bir bekçisin. Huysuz,
 | 5 | Kararsız, eksik mesaj | `ASK_MORE` |
 
 Örnek cümleler oyuncuya hiçbir zaman gösterilmez. Model bir örnek cümleyi aynen kopyalarsa Unity bunu algılar (`IsSeedCopy`) ve cümleyi yeniden ürettirir.
+
+## LLM İstek / Yanıt Akışı ve Yapılandırılmış Çıktı
+
+### İstek
+
+Unity, Ollama'nın `/api/chat` uç noktasına bir HTTP isteği gönderir (`UnityWebRequest`, asenkron). İstek şu parçalardan oluşur:
+
+| Alan | Değer | Açıklama |
+|------|-------|----------|
+| `model` | `gemma2:2b` | Inspector'dan değiştirilebilir |
+| `stream` | `false` | Cevap tek parça beklenir |
+| `keep_alive` | `30m` | Model 30 dk bellekte kalır, tekrar yüklenmez |
+| `options.temperature` | `0.3` | Tutarlı çıktı için düşük sıcaklık |
+| `options.num_predict` | `120` | Üretilecek en fazla token (JSON kesilmesin diye) |
+| `options.num_ctx` | `2048` | Bağlam uzunluğu |
+| `options.repeat_penalty` | `1.1` | Tekrarı azaltır |
+| `format` | JSON şeması (aşağıda) | Çıktıyı şemaya zorlar |
+| `messages` | 5 başlangıç örneği + oyuncu mesajı | Sistem promptu, Gemma 2'nin sistem rolünü karıştırmaması için ilk kullanıcı mesajının başına eklenir |
+
+### Yapılandırılmış Çıktı Şeması
+
+Model serbest metin yerine aşağıdaki şemaya uyan JSON üretmek zorundadır:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "decision": { "type": "string", "enum": ["OPEN_GATE", "ASK_MORE", "REFUSE"] },
+    "mood":     { "type": "string", "enum": ["FRIENDLY", "SUSPICIOUS", "ANGRY"] },
+    "dialogue": { "type": "string" }
+  },
+  "required": ["decision", "mood", "dialogue"]
+}
+```
+
+Örnek yanıt yapısı:
+
+```json
+{ "decision": "ASK_MORE", "mood": "SUSPICIOUS", "dialogue": "<modelin ürettiği cümle>" }
+```
+
+Unity'nin karar değiştirdiği yeniden üretim isteklerinde şemadaki `decision` ve `mood` alanları tek bir değere kilitlenir (ör. yalnızca `ASK_MORE` ve `SUSPICIOUS`); model yalnızca `dialogue` cümlesini üretir.
+
+### Yanıtın Oyun Durumuna Bağlanması
+
+| Alan | Unity'deki işlevi |
+|------|-------------------|
+| `decision` | `NpcDecisionValidator` görev durumuna göre doğrular ya da değiştirir. Doğrulanmış `OPEN_GATE` kararı `NpcController.OnGateShouldOpen` olayını tetikler, `VillageGate` açılır ve bitiş sekansı başlar. `ASK_MORE` diyaloğu sürdürür. `REFUSE` Basri Amca'nın bir süre konuşmayı reddetmesine yol açar (bekleme süresi). |
+| `mood` | Basri Amca'nın ruh hâli. Karar değiştiğinde karara uygun tek değere sabitlenir (ör. `OPEN_GATE` için `FRIENDLY`), böylece karar ve ruh hâli çelişmez. |
+| `dialogue` | Oyuncuya gösterilen cümle. Önce karakter dışı ifade, karar çelişkisi ve örnek kopyası kontrollerinden geçer, geçemezse yeniden üretilir. |
+
+Geçersiz JSON, boş yanıt ya da izin verilmeyen karar oyun durumunu değiştirmez (bkz. [Hata Yönetimi](#hata-yönetimi)).
 
 ## Görev Sistemi
 
@@ -342,6 +407,33 @@ stateDiagram-v2
 - Hedef yürünebilir alanda değilse (`NavMesh.SamplePosition` başarısız) komut yok sayılır, durum değişmez.
 - Ayarlanabilir parametreler (Inspector): takip mesafesi 2,5 m, etkileşim menzili 4 m, etkileşim açısı 25°, varış toleransı 1,2 m, etkileşim zaman aşımı 4 sn.
 
+### Karar Akışı (Komuttan Etkileşime)
+
+Bir komut geldiğinde Fındık'ın izlediği karar akışı:
+
+```mermaid
+flowchart TD
+    A["Komut alındı<br/>(GoTo veya Interact)"] --> B{"Hedef NavMesh üzerinde mi?<br/>SamplePosition"}
+    B -->|"Hayır"| C["Komut yok sayılır, uyarı loglanır"]
+    B -->|"Evet"| D["MovingToTarget<br/>NavMeshAgent hedefe yürür"]
+    D --> E{"Ajan durdu mu?<br/>(ilk 0,3 sn sayılmaz)"}
+    E -->|"Hayır"| D
+    E -->|"Evet"| F{"Hedefe varıldı mı?"}
+    F -->|"Hayır, yol kapalı"| G["Idle<br/>Ulaşılamadı uyarısı"]
+    F -->|"Evet"| H{"Etkileşim nesnesi var mı?"}
+    H -->|"Hayır"| I["Idle<br/>Hedefe varıldı"]
+    H -->|"Evet"| J["Interacting<br/>Hedefe dön, sensörle ölç"]
+    J --> K{"Mesafe ve açı uygun<br/>veya görüş hattı açık mı?"}
+    K -->|"Evet"| M["Etkileşim yürütülür<br/>(görev tamamlanır)"]
+    K -->|"Hayır"| L{"4 sn doldu mu?"}
+    L -->|"Hayır"| J
+    L -->|"Evet"| M
+    M --> N["ReturningToPlayer<br/>Oyuncuya yürür"]
+    N --> O{"Oyuncuya yaklaşıldı mı?"}
+    O -->|"Evet"| P["Idle"]
+    O -->|"Hayır, ulaşılamadı"| P
+```
+
 ### Sensör (CompanionSensor)
 
 Fındık'ın etkileşim kararı Raycast tabanlı sensörle verilir. Sensör iki iş yapar.
@@ -402,6 +494,34 @@ Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `
 | Anahtar kelime listesi genişletildikten sonra | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
 
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
+### Otonom Ajan (Fındık) Testleri
+
+Her hedef için oyuncu farklı mesafe ve açılardan en az 10 kez komut verdi. **Başarılı:** Fındık ilk komutta hedefe gidip etkileşimi tamamladı ve görev tamamlandı olarak işaretlendi.
+
+| Hedef | Komut | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | Başarısızlık nedeni |
+|-------|-------|--------|----------|--------------|----------------|---------------------|
+| Vana kolu | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Devrilen ağaç | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Köprü | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Kedi | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Çöp | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Boş zemin | Sağ tık (GoTo) | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Oyuncuyu takip | F tuşu | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+
+**Engel aşma:** NavMesh'in kapsamadığı ya da engelle kapalı bir noktaya komut verildiğinde Fındık'ın davranışı: **[DOLDUR: komut yok sayıldı / ulaşamadım uyarısı, çökme yok]**.
+
+**Tekrarlanabilirlik:** Aynı komut aynı başlangıç konumundan 10 kez verildiğinde sonuç: **[DOLDUR: kaç kez aynı sonuç, süre aralığı]**.
+
+### Örnek NPC Diyalogları
+
+Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır (Console'daki `[Dialogue]` satırından alınmıştır). Hazır cümle yoktur.
+
+| # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
+|---|---------|---------------|-----------|-------------|-----------------------|-----------|
+| 1 | Normal selam | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| 2 | Hakaret | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| 3 | İkna edici ama görev eksik | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| 4 | Tüm görevler tamam, ikna edici | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
 
 ### Hata senaryoları
 
@@ -424,6 +544,18 @@ Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya 
 - **Eksik atamalar:** Inspector bağlantıları eksikse (ör. UI, sahne referansları) ilgili bileşen `Debug.LogError` ile açık bir mesaj verir ve devre dışı kalır, oyun çökmez.
 - **Sahne geçişi:** Build listesinde olmayan sahneye geçiş denenirse hata loglanır, oyun kilitlenmez.
 
+## Asenkron Yapı ve Performans
+
+- **Arayüz donmaz.** LLM isteği `UnityWebRequest` ile bir coroutine içinde (`yield return SendWebRequest()`) gönderilir; ana iş parçacığı beklemez. İstek sürerken oyun döngüsü, animasyonlar, kamera ve Fındık çalışmaya devam eder.
+- **Çift istek önlenir.** İstek sürerken Gönder düğmesi ve metin kutusu kapatılır, "Basri Amca düşünüyor..." göstergesi açılır; cevap ya da hata gelince eski haline döner.
+- **Model önceden yüklenir.** Oyun başlarken `Warmup` isteği modeli belleğe alır, ilk gerçek cevap gecikmez. `keep_alive` ile model 30 dakika bellekte tutulur.
+- **Süre sınırı.** Her istek 60 sn zaman aşımına sahiptir, takılan istek oyunu kilitlemez.
+- **Ölçümler** için [Performans](#performans) tablosuna bakınız.
+
+| Test | Sonuç |
+|------|-------|
+| Cevap beklerken kamera döndürme / yürüme | **[DOLDUR: arayüz donuyor mu, kare hızı]** |
+
 ## Tasarım Prensipleri (OOP / SOLID)
 
 - **Tek sorumluluk (SRP):** Her sınıf tek iş yapar. `QuestManager` yalnızca görev durumunu tutar ve duyurur; `QuestHUD` listeyi çizer, `QuestNotifier` bildirimleri gösterir, `QuestPanelToggle` Tab ile listeyi açıp kapatır, `QuestTitles` görev adlarını tek yerde tutar. `CompanionSensor` algılar, `CompanionController` karar verir ve hareket ettirir. `VillageGate` yalnızca kapıyı hareket ettirir, `GateEndingSequence` kapı olaylarını dinleyip bitişi yönetir. `PlazaCenterTrigger` varışı algılar, `FestivalEndingController` finali yönetir.
@@ -432,12 +564,33 @@ Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya 
 - **Bağımlılığın tersine çevrilmesi (DIP):** Girdi sınıfı `CompanionCommandInput` Fındık'a somut sınıf yerine `ICompanionCommandReceiver` arayüzüyle komut verir. `PlayerInteractor` nesneleri `IPlayerInteractable` üzerinden bulur. LLM erişimi `ILlmClient` arayüzü arkasındadır (`OllamaClient` bir uygulamadır). `NpcDecisionValidator` oyun nesnelerine bağlı değildir, yalnızca değer alır.
 - **Olay tabanlı iletişim:** Sınıflar birbirini doğrudan çağırmak yerine olaylarla haberleşir (`OnQuestCompleted`, `OnAllQuestsCompleted`, `OnGateShouldOpen`, `OpeningStarted`, `Opened`, ara sahne `Started`/`Finished`). Yeni dinleyici eklemek gönderen sınıfı değiştirmez.
 
-## Bilinen Sınırlılıklar
+## Sonuç ve Tartışma
+
+### Başarılar
+
+- Hem otonom yardımcı karakter hem LLM destekli NPC, **tamamen yerel** çalışır; bulut hizmeti kullanılmaz.
+- Karakterlerin davranışı betikle değil, çalışma zamanında üretilir: Fındık NavMesh ve sensörle kendi yolunu bulur, Basri Amca'nın her cümlesi modelin ürettiği metindir.
+- **Karar güvenliği:** LLM kararı yalnızca öneridir. Kural katmanı sayesinde küçük modelin hataları (ham kararda doğru oranı düşüktür) oyun akışını bozmaz, kapı ancak yedi görev tamamlandığında açılır.
+- **Dayanıklılık:** Ollama kapalı, zaman aşımı ya da geçersiz yanıt durumlarında oyun çökmez, kullanıcıya hata mesajı gösterilir ve oyun devam eder.
+- **Arayüz akıcılığı:** İstekler asenkron yapılır, bekleme sırasında oyun donmaz.
+- Temiz mimari: SRP, arayüz tabanlı bağımlılık ve olay tabanlı iletişim ile sınıflar küçük ve değiştirilebilirdir (yeni görev eklemek tek satırdır).
+
+### Sınırlılıklar
 
 - Gemma 2:2B'nin Türkçesi zayıftır; cümleler zaman zaman dilbilgisi hatası içerebilir. Prompt ve doğrulama bunu azaltır, tamamen gidermez.
-- Cevap süresi CPU ve belleğe bağlıdır. Hazır sürümde ve diğer uygulamalar kapalıyken en iyi sonuç alınır.
+- Cevap süresi CPU ve belleğe bağlıdır. 8 GB RAM'li bilgisayarda Unity editörü açıkken cevaplar uzundur, hazır sürümde daha kısadır (bkz. [Performans](#performans)). Karar değiştiğinde tek mesaj için üç LLM isteği gerekebilir.
 - Basri Amca önceki mesajı hatırlamaz (bilinçli tercih, bkz. [Basri Amca](#basri-amca---yerel-llm-destekli-npc)).
+- Modelin kendi kararı (ham karar) nötr ve alakasız mesajlarda güvenilir değildir; doğru sonuç kural katmanına dayanır.
 - Fındık yalnızca NavMesh'in kapsadığı alanda hareket eder; ulaşamadığı hedefi yok sayar.
+
+### Olası Geliştirmeler
+
+- GPU destekli bir makinede daha büyük bir model (ör. 7-8 milyar parametreli) kullanarak Türkçe kalitesini ve ham karar doğruluğunu artırmak.
+- Prompt'un değişmeyen kısmını başa, değişen oyun durumunu sona alarak model önbelleğini daha verimli kullanmak ve süreyi kısaltmak.
+- Cevabı akışla (stream) göstererek bekleme hissini azaltmak.
+- Basri Amca'ya kısa süreli konuşma hafızası eklemek.
+- Fındık'ın FSM'ini davranış ağacına genişletmek ve birden fazla yardımcı karakter eklemek.
+- Seslendirme ve daha zengin animasyonlar.
 
 ## Ekran Görüntüleri
 
