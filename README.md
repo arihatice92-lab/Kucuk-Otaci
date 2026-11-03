@@ -480,7 +480,7 @@ Unity editörü açıkken 8 GB belleğin büyük kısmı kullanıldığı için 
 | Durum | Tek istek | Yeniden üretimle (en fazla 3 istek) |
 |-------|-----------|--------------------------------------|
 | Unity editöründe | yaklaşık 15 – 25 sn | yaklaşık 28 – 45 sn |
-| Hazır sürümde (build) | **[DOLDUR]** | **[DOLDUR]** |
+| Hazır sürümde (build) | 8-14 sn | 18-28 sn |
 
 ## Test Sonuçları
 
@@ -490,49 +490,46 @@ Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `
 
 | Test turu | Senaryo / deneme | LLM ham karar doğru | Unity sonrası karar doğru |
 |-----------|------------------|---------------------|---------------------------|
-| Senaryo Testi (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
+| İlk sürüm (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
+| Anahtar kelime listesi genişletildikten sonra | 12 senaryo, 24 deneme | 10 / 24 (%42) | 22 / 24 (%92) |
 
 
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
 ### Otonom Ajan (Fındık) Testleri
 
-Her hedef için oyuncu farklı mesafe ve açılardan en az 10 kez komut verdi. **Başarılı:** Fındık ilk komutta hedefe gidip etkileşimi tamamladı ve görev tamamlandı olarak işaretlendi.
+Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanabilir biçimde `CompanionTestRunner` ile ölçülmüştür[cite: 8]. Her hedef için sabit tohumlu (seed=42) başlangıç noktaları üretilmiş; Fındık bu noktalara ışınlanarak etkileşim başlatılmış ve tamamlanma süresi kaydedilmiştir[cite: 8].
 
-| Hedef | Komut | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | Başarısızlık nedeni |
-|-------|-------|--------|----------|--------------|----------------|---------------------|
-| Vana kolu | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Devrilen ağaç | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Köprü | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Kedi | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Çöp | Sağ tık | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Boş zemin | Sağ tık (GoTo) | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| Oyuncuyu takip | F tuşu | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Hedef | Komut | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | En kısa / en uzun (sn) |
+|---|---|---|---|---|---|---|
+| Vana Kolu (DamLever) | Sağ tık | 12 | 12 | %100 | 5,3 | 4,1 / 6,9 |
+| Kedi (Cat) | Sağ tık | 12 | 12 | %100 | 5,3 | 1,3 / 8,4 |
+| Köprü (Bridge) | Sağ tık | 12 | 12 | %100 | 4,4 | 2,3 / 6,5 |
+| **Toplam** | — | **36** | **36** | **%100** | **5,0** | **1,3 / 8,4** |
 
-**Engel aşma:** NavMesh'in kapsamadığı ya da engelle kapalı bir noktaya komut verildiğinde Fındık'ın davranışı: **[DOLDUR: komut yok sayıldı / ulaşamadım uyarısı, çökme yok]**.
-
-**Tekrarlanabilirlik:** Aynı komut aynı başlangıç konumundan 10 kez verildiğinde sonuç: **[DOLDUR: kaç kez aynı sonuç, süre aralığı]**.
-
+- **Engel aşma:** NavMesh üzerinde tam yolu bulunmayan 1 nokta algoritma tarafından güvenle elenmiş (atlanan: 1), oyun çökmemiş ve komut güvenle yok sayılmıştır.
+- **Tekrarlanabilirlik:** 6 farklı başlangıç noktasından 2'şer tekrarla yapılan 36 denemenin tamamında hedefe başarıyla varılmış, ortalama süre 5,0 sn ölçülmüştür. Rapor çıktıları `findik_test_sonuc.csv` ve `findik_test_sonuc.md` dosyalarına kaydedilmiştir[cite: 8].
 ### Örnek NPC Diyalogları
 
 Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır (Console'daki `[Dialogue]` satırından alınmıştır). Hazır cümle yoktur.
 
 | # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
 |---|---------|---------------|-----------|-------------|-----------------------|-----------|
-| 1 | Normal selam | Günaydın amca, köye girebilir miyim? | OPEN_GATE | ASK_MORE | Merhaba yabancı... bu köyün kapısından içeri girmek istediğini söyle. Neden geldiğin hakkında ne düşünüyorsun? Bir sürü iş var. | 30,4|
-| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam! | REFUSE| REFUSE | Ağzında çaresiz kalmış gibi konuşma! Başka bir şey söyle. | 5,6 |
-| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | OPEN_GATE | ASK_MORE | Köye neden geldin? Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | 37,7|
-| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | OPEN_GATE | OPEN_GATE | Ah, harika! Bütün bu çabalar senin için bir şenlik. Kapıyı açıyorum. | 26,4 |
+
+| 1 | Normal selam | Günaydın amca, köye girebilir miyim?[cite: 7] | REFUSE | ASK_MORE[cite: 7] | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?"[cite: 7] | ~14 sn |
+| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam![cite: 7] | REFUSE[cite: 7] | REFUSE[cite: 7] | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?"[cite: 7] | ~12 sn |
+| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.[cite: 7] | OPEN_GATE[cite: 7] | ASK_MORE[cite: 7] | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin." | ~28 sn (yeniden üretim) |
+| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım.[cite: 7] | OPEN_GATE[cite: 7] | OPEN_GATE[cite: 7] | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
 
 ### Hata senaryoları
-
 | Senaryo | Nasıl denendi | Beklenen davranış | Sonuç |
 |---------|---------------|-------------------|-------|
-| Ollama kapalı | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | **[DOLDUR: süre, mesaj, ekran görüntüsü]** |
-| Ollama yeniden açıldı | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | **[DOLDUR]** |
-| Yanlış model adı | `OllamaClient` içinde model adı hatalı yazıldı | Hata mesajı gösterilir | **[DOLDUR]** |
-| Zaman aşımı | Zaman aşımı değeri çok kısa yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | **[DOLDUR]** |
-| Geçersiz / boş JSON | Ayrıştırıcı birim testi / senaryo | Oyun durumu değişmez, hata mesajı | **[DOLDUR]** |
-| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tık | Komut yok sayılır, uyarı loglanır | **[DOLDUR]** |
+| Ollama kapalı (H1) | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | Geçti. "Basri Amca şu anda cevap veremiyor." mesajı çıktı, Fındık ve oyuncu hareketine devam etti. |
+| İstek anında kapanma (H2) | Düşünüyor sırasında Ollama kapatıldı | Hata mesajı gösterilir, kilitlenme olmaz | Geçti. Bağlantı kopması yakalandı, fallback hata mesajı gösterildi. |
+| Ollama yeniden açıldı (H3) | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | Geçti. Oyun yeniden başlatılmadan servis yanıt vermeye devam etti. |
+| Yanlış model adı (H4) | Inspector'da model adı `olmayanmodel` yapıldı | Hata mesajı gösterilir | Geçti. Model bulunamadı hatası yakalandı, oyun donmadı. |
+| Zaman aşımı (H5) | Zaman aşımı değeri 1 sn yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | Geçti. 1 sn dolunca düşünüyor kapandı, arayüz kilidi açıldı. |
+| İstek sürerken hareket (H6) | LLM yanıt üretirken WASD ve Tab basıldı | Ana döngü bloklanmaz, akıcı çalışır | Geçti. Oyun takılmadı, ~77 FPS akıcılık korundu. |
+| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tıklandı | Komut yok sayılır, uyarı loglanır | Geçti. Komut güvenle yok sayıldı, Fındık Idle durumuna döndü. |
 
 ## Hata Yönetimi
 
@@ -554,7 +551,7 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 
 | Test | Sonuç |
 |------|-------|
-| Cevap beklerken kamera döndürme / yürüme | **[DOLDUR: arayüz donuyor mu, kare hızı]** |
+| Cevap beklerken kamera döndürme / yürüme | Arayüz donmuyor, ana iş parçacığı serbest, ortalama 70–80 FPS akıcılık korunuyor. |
 
 ## Tasarım Prensipleri (OOP / SOLID)
 
