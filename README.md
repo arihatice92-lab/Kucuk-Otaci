@@ -490,8 +490,8 @@ Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `
 
 | Test turu | Senaryo / deneme | LLM ham karar doğru | Unity sonrası karar doğru |
 |-----------|------------------|---------------------|---------------------------|
-| İlk sürüm (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
-| Anahtar kelime listesi genişletildikten sonra | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| Senaryo Testi (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
+
 
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
 ### Otonom Ajan (Fındık) Testleri
@@ -518,10 +518,10 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 
 | # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
 |---|---------|---------------|-----------|-------------|-----------------------|-----------|
-| 1 | Normal selam | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| 2 | Hakaret | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| 3 | İkna edici ama görev eksik | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
-| 4 | Tüm görevler tamam, ikna edici | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** | **[DOLDUR]** |
+| 1 | Normal selam | Günaydın amca, köye girebilir miyim? | OPEN_GATE | ASK_MORE | Merhaba yabancı... bu köyün kapısından içeri girmek istediğini söyle. Neden geldiğin hakkında ne düşünüyorsun? Bir sürü iş var. | 30,4|
+| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam! | REFUSE| REFUSE | Ağzında çaresiz kalmış gibi konuşma! Başka bir şey söyle. | 5,6 |
+| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | OPEN_GATE | ASK_MORE | Köye neden geldin? Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | 37,7|
+| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, yolda adaçayı, nane ve papatya topladım. | OPEN_GATE | OPEN_GATE | Ah, harika! Bütün bu çabalar senin için bir şenlik. Kapıyı açıyorum. | 26,4 |
 
 ### Hata senaryoları
 
