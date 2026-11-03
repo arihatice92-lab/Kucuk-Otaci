@@ -32,6 +32,6 @@ public class NpcResult
         Error = error,
         Decision = NpcDecision.AskMore,
         Mood = NpcMood.Suspicious,
-        Dialogue = "Basri Amca şu anda cevap veremiyor."
+        Dialogue = string.Empty   // hata durumunda NPC cümlesi yok
     };
 }
