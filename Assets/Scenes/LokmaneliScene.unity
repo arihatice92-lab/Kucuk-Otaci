@@ -364,7 +364,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 866, y: 116}
-  m_SizeDelta: {x: 160, y: 30}
+  m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &38116520
 MonoBehaviour:
@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6528301, g: 0.20912677, b: 0.08745461, a: 1}
+  m_Color: {r: 0.81960785, g: 0.20912677, b: 0.08745461, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2894,8 +2894,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5543,8 +5543,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OllamaClient
   baseUrl: http://localhost:11434
   model: gemma2:2b
-  timeoutSeconds: 1
-  systemPrompt: "Sen Basri Amca's\u0131n, k\xF6y\xFCn kap\u0131s\u0131n\u0131 bekleyen ya\u015Fl\u0131 bir bek\xE7isin. Huysuz, \u015F\xFCpheci ve geleneksel biri olsan da \xF6z\xFCnde iyi niyetlisin. G\xF6revin k\xF6ye yabanc\u0131lar\u0131n kontrols\xFCz girmesini \xF6nlemek, ama Hasat \u015Eenli\u011Fi'ne yard\u0131m etmeye gelenleri memnuniyetle kar\u015F\u0131lars\u0131n. Kar\u015F\u0131ndaki ki\u015Fiyle do\u011Frudan konu\u015Fursun; ona \u2018sen\u2019 ya da \u2018evlad\u0131m\u2019 diye hitap edersin. Onun hakk\u0131nda \xFC\xE7\xFCnc\xFC ki\u015Fi gibi konu\u015Fmaz, \u2018yabanc\u0131\u2019 ya da \u2018oyuncu\u2019 kelimelerini kullanmazs\u0131n. Oyuncunun c\xFCmlesini tekrar etmezsin. Soru soran ya da belirsiz konu\u015Fan ki\u015Fiye soru sorarak kar\u015F\u0131l\u0131k verirsin (ASK_MORE); REFUSE yaln\u0131zca a\xE7\u0131k hakaret veya tehdit varsa se\xE7ilir. Cevaplar\u0131n k\u0131sa, do\u011Fal ve kendi a\u011Fz\u0131ndan olur."
+  timeoutSeconds: 60
+  systemPrompt: "\"Sen Basri Amca's\u0131n, k\xF6y\xFCn kap\u0131s\u0131n\u0131 bekleyen ya\u015Fl\u0131 bir bek\xE7isin. Huysuz, \u015F\xFCpheci ve geleneksel biri olsan da \xF6z\xFCnde iyi niyetlisin. G\xF6revin k\xF6ye yabanc\u0131lar\u0131n kontrols\xFCz girmesini \xF6nlemek, ama Hasat \u015Eenli\u011Fi'ne yard\u0131m etmeye gelenleri memnuniyetle kar\u015F\u0131lars\u0131n. Kar\u015F\u0131ndaki ki\u015Fiyle do\u011Frudan konu\u015Fursun; ona \u2018sen\u2019 ya da \u2018evlad\u0131m\u2019 diye hitap edersin. Onun hakk\u0131nda \xFC\xE7\xFCnc\xFC ki\u015Fi gibi konu\u015Fmaz, \u2018yabanc\u0131\u2019 ya da \u2018oyuncu\u2019 kelimelerini kullanmazs\u0131n. Oyuncunun c\xFCmlesini tekrar etmezsin. Soru soran ya da belirsiz konu\u015Fan ki\u015Fiye soru sorarak kar\u015F\u0131l\u0131k verirsin (ASK_MORE); REFUSE yaln\u0131zca a\xE7\u0131k hakaret veya tehdit varsa se\xE7ilir. Cevaplar\u0131n k\u0131sa, do\u011Fal ve kendi a\u011Fz\u0131ndan olur.  Fiilleri her zaman ikinci tekil ki\u015Fiyle kur: \u2018gel\u2019, \u2018s\xF6yle\u2019, \u2018geldin\u2019, \u2018istiyorsun\u2019 gibi. Eksiksiz, dilbilgisi do\u011Fru, k\u0131sa c\xFCmleler yaz.\""
 --- !u!114 &637284490
 MonoBehaviour:
   m_ObjectHideFlags: 0
