@@ -167,7 +167,14 @@ public class DialogueManager : MonoBehaviour
                 result = NpcResult.Fail("Cümle yeniden üretilemedi");
             }
         }
-
+        if (!result.Success)
+        {
+            Debug.LogWarning($"[Dialogue] HATA: {result.Error} | Oyun durumu değişmedi. " +
+                             $"Süre: {Time.realtimeSinceStartup - start:F1} sn");
+            npcText.text = ErrorToMessage(result.Error);
+            SetWaiting(false);
+            yield break;
+        }
         Debug.Log($"[Dialogue] HAM: {hamKarar} | FINAL: {result.Decision} | Yeniden üretildi: {yenidenUretildi} | " +
                   $"Süre: {Time.realtimeSinceStartup - start:F1} sn | Diyalog ({result.Dialogue?.Length ?? 0} krk): \"{result.Dialogue}\"");
         npcText.text = result.Dialogue;
@@ -183,6 +190,22 @@ public class DialogueManager : MonoBehaviour
         foreach (var k in keywords)
             if (t.Contains(k)) return true;
         return false;
+    }
+    // Hata metnini oyuncuya anlaşılır sistem mesajına çevirir
+    private static string ErrorToMessage(string error)
+    {
+        string e = (error ?? "").ToLowerInvariant();
+
+        if (e.Contains("404"))
+            return "[Sistem] Model bulunamadı. Ollama'da model yüklü mü, adı doğru mu?";
+        if (e.Contains("timeout"))
+            return "[Sistem] Yanıt zaman aşımına uğradı. Lütfen tekrar dene.";
+        if (e.Contains("cannot connect") || e.Contains("resolve") || e.Contains("bağlantı"))
+            return "[Sistem] Ollama'ya ulaşılamıyor. Ollama açık mı?";
+        if (e.Contains("okunamadı") || e.Contains("yeniden üretilemedi"))
+            return "[Sistem] Modelden geçerli bir yanıt alınamadı. Lütfen tekrar dene.";
+
+        return "[Sistem] Yerel yapay zekâ modeline ulaşılamadı.";
     }
     private void SetWaiting(bool waiting)
     {
