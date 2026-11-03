@@ -490,12 +490,8 @@ Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `
 
 | Test turu | Senaryo / deneme | LLM ham karar doğru | Unity sonrası karar doğru |
 |-----------|------------------|---------------------|---------------------------|
-<<<<<<< Updated upstream
-| İlk sürüm (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
-| Anahtar kelime listesi genişletildikten sonra | 12 senaryo, 24 deneme | 10 / 24 (%42) | 22 / 24 (%92) |
-=======
 | Senaryo Testleri (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
->>>>>>> Stashed changes
+
 
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
 
@@ -518,17 +514,10 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 
 | # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
 |---|---------|---------------|-----------|-------------|-----------------------|-----------|
-<<<<<<< Updated upstream
-| 1 | Normal selam | Günaydın amca, köye girebilir miyim?[cite: 7] | REFUSE | ASK_MORE[cite: 7] | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?"[cite: 7] | ~14 sn |
-| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam![cite: 7] | REFUSE[cite: 7] | REFUSE[cite: 7] | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?"[cite: 7] | ~12 sn |
-| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.[cite: 7] | OPEN_GATE[cite: 7] | ASK_MORE[cite: 7] | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin." | ~28 sn (yeniden üretim) |
-| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım.[cite: 7] | OPEN_GATE[cite: 7] | OPEN_GATE[cite: 7] | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
-=======
 | 1 | Normal selam | Günaydın amca, köye girebilir miyim? | REFUSE | ASK_MORE | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?" | ~14 sn |
 | 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam!| REFUSE | REFUSE| "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?" | ~12 sn |
 | 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.| OPEN_GATE| ASK_MORE| "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin." | ~28 sn (yeniden üretim) |
 | 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım. | OPEN_GATE | OPEN_GATE | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
->>>>>>> Stashed changes
 
 ### Hata senaryoları
 | Senaryo | Nasıl denendi | Beklenen davranış | Sonuç |
