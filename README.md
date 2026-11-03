@@ -622,8 +622,6 @@ Görüntüler `docs/images/` klasöründedir.
 | Görev sistemi, görev nesneleri (köprü, ağaç, kedi, vana, yılan, çöp, şifalı ot) | | ✔ |
 | Sahne ve çevre tasarımı, Basri Amca modeli, diyalog arayüz iskeleti | | ✔ |
 
-Commit dağılımı `git shortlog -sn --all` ile kontrol edilebilir.
-
 ## Kaynaklar ve Lisanslar
 
 Kullanılan 3D modeller, ses efektleri ve diğer harici varlıkların kaynakları ve lisansları [CREDITS.md](CREDITS.md) dosyasındadır.
