@@ -47,7 +47,7 @@ Notlar:
 - Model adı, adres ve zaman aşımı `OllamaClient` bileşeninden (Inspector) değiştirilebilir (varsayılan: `gemma2:2b`, `http://localhost:11434`, 60 sn).
 - Oyun CPU üzerinde çalışan yerel modele bağlıdır. En iyi süre için oyunu Unity editörü yerine hazır sürümle (build) çalıştırın ve diğer ağır uygulamaları kapatın (bkz. [Performans](#performans)).
 - Ollama kapalıysa oyun çökmez; Basri Amca için hata mesajı gösterilir ve oyun devam eder (bkz. [Hata Yönetimi](#hata-yönetimi)).
-- 
+
 ## Genel Mimari
 
 ```mermaid
@@ -216,7 +216,7 @@ Oyuncu bir erzakla başlar (`PlayerInventory`), erzak başka bir yerde harcanmad
 
 ### Fındık - Otonom Companion
 
-Fındık, oyuncunun yanında bekleyen otonom yardımcı karakterdir. Oyuncunun komutu üzerine NavMesh kullanarak vana koluna, yıkık köprüye, kediye, devrilen ağaca ve çöplere ulaşır, ilgili etkileşimleri gerçekleştirir.Raycast sensörleriyle hedefe görüş hattını ve çevresindeki engelleri algılar. Fiziksel engeller kaldırıldıktan sonra oyuncunun ilerlemesine yardım eder.
+Fındık, oyuncunun yanında bekleyen otonom yardımcı karakterdir. Oyuncunun komutu üzerine NavMesh kullanarak vana koluna, yıkık köprüye, kediye, devrilen ağaca ve çöplere ulaşır, ilgili etkileşimleri gerçekleştirir. Raycast sensörleriyle hedefe görüş hattını ve çevresindeki engelleri algılar. Fiziksel engeller kaldırıldıktan sonra oyuncunun ilerlemesine yardım eder.
 
 Fındık'ın davranışı önceden belirlenmiş hareket adımlarına dayanmaz. Hedefe ulaşmak için NavMesh üzerinde yol bulur ve durum makinesi ile aşağıdaki durumları yönetir (ayrıntılı diyagram [Companion Davranış Tasarımı](#companion-fındık-davranış-tasarımı) bölümündedir):
 
@@ -486,19 +486,19 @@ Unity editörü açıkken 8 GB belleğin büyük kısmı kullanıldığı için 
 
 ### Karar doğrulama senaryoları
 
-Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `Senaryo_Test_Sonuclari.xlsx`).
+Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `docs/Senaryo_Test_Sonuclari.xlsx`).
 
 | Test turu | Senaryo / deneme | LLM ham karar doğru | Unity sonrası karar doğru |
 |-----------|------------------|---------------------|---------------------------|
-| İlk sürüm (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
-| Anahtar kelime listesi genişletildikten sonra | 12 senaryo, 24 deneme | 10 / 24 (%42) | 22 / 24 (%92) |
+| Senaryo Testleri (9 Ekim) | 8 senaryo, 27 deneme | 6 / 27 | 27 / 27 |
+
 
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
+
 ### Otonom Ajan (Fındık) Testleri
 
-Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanabilir biçimde `CompanionTestRunner` ile ölçülmüştür . Her hedef için sabit tohumlu (seed=42) başlangıç noktaları üretilmiş; Fındık bu noktalara ışınlanarak etkileşim başlatılmış ve tamamlanma süresi kaydedilmiştir.
-
-| Hedef | Komut | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | En kısa / en uzun (sn) |
+Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanabilir biçimde `Interact (CompanionTestRunner)` ile ölçülmüştür. Her hedef için sabit tohumlu (seed=42) başlangıç noktaları üretilmiş; Fındık bu noktalara ışınlanarak etkileşim başlatılmış ve tamamlanma süresi kaydedilmiştir.
+| Hedef | Test Yöntemi | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | En kısa / en uzun (sn) |
 |---|---|---|---|---|---|---|
 | Vana Kolu (DamLever) | Sağ tık | 12 | 12 | %100 | 5,3 | 4,1 / 6,9 |
 | Kedi (Cat) | Sağ tık | 12 | 12 | %100 | 5,3 | 1,3 / 8,4 |
@@ -513,31 +513,29 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 
 | # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
 |---|---------|---------------|-----------|-------------|-----------------------|-----------|
-| 1 | Normal selam | Günaydın amca, köye girebilir miyim?| REFUSE | ASK_MORE  | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?"  | ~14 sn |
-| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam!  | REFUSE  | REFUSE  | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?"| ~12 sn |
-| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.| OPEN_GATE  | ASK_MORE  | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin."| ~28 sn (yeniden üretim) |
-| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım. | OPEN_GATE  | OPEN_GATE  | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
-| 5 | Alakasız soru | Bugün hava çok güzel, pizza sever misin? | REFUSE | ASK_MORE | "Pizza severim dedim ama bu havada daha iyi bir şey yemek istemem."| 50,5 sn (yeniden üretim)|
+| 1 | Normal selam | Günaydın amca, köye girebilir miyim? | REFUSE | ASK_MORE | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?" | ~14 sn |
+| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam! | REFUSE | REFUSE | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?" | ~12 sn |
+| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım. | OPEN_GATE | ASK_MORE | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin." | ~28 sn (yeniden üretim) |
+| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım. | OPEN_GATE | OPEN_GATE | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
+| 5 | Alakasız soru | Bugün hava çok güzel, pizza sever misin? | REFUSE | ASK_MORE | "Pizza severim dedim ama bu havada daha iyi bir şey yemek istemem." | 50,5 sn (yeniden üretim) |
 
 **Gözlem:** Alakasız soru senaryosunda model oyuncunun sorusunu yanıtladı; sistem promptundaki konuyu köye geliş amacına yönlendirme kuralını bu denemede izlemedi. Unity kararı `ASK_MORE` olarak doğruladı ve kapı açılmadı.
-
 ### Hata senaryoları
 | Senaryo | Nasıl denendi | Beklenen davranış | Sonuç |
 |---------|---------------|-------------------|-------|
-| Ollama kapalı (H1) | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | Geçti. "Basri Amca şu anda cevap veremiyor." mesajı çıktı, Fındık ve oyuncu hareketine devam etti.|
-| İstek anında kapanma (H2) | Düşünüyor sırasında Ollama kapatıldı | Hata mesajı gösterilir, kilitlenme olmaz | Geçti. Bağlantı kopması yakalandı, fallback hata mesajı gösterildi.|
-| Ollama yeniden açıldı (H3) | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | Geçti. Oyun yeniden başlatılmadan servis yanıt vermeye devam etti.|
-| Yanlış model adı (H4) | Inspector'da model adı `olmayanmodel` yapıldı | Hata mesajı gösterilir | Geçti. Model bulunamadı hatası yakalandı, oyun donmadı.|
-| Zaman aşımı (H5) | Zaman aşımı değeri 1 sn yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | Geçti. 1 sn dolunca düşünüyor kapandı, arayüz kilidi açıldı.|
-| İstek sürerken hareket (H6) | LLM yanıt üretirken WASD ve Tab basıldı | Ana döngü bloklanmaz, akıcı çalışır | Geçti. Oyun takılmadı, ~77 FPS akıcılık korundu.|
-| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tıklandı | Komut yok sayılır, uyarı loglanır | Geçti. Komut güvenle yok sayıldı, Fındık Idle durumuna döndü.|
-
+| Ollama kapalı (H1) | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | Geçti. [Sistem] Ollama'ya ulaşılamıyor. Ollama açık mı? mesajı gösterildi, Fındık ve oyuncu hareketine devam etti. |
+| İstek anında kapanma (H2) | Düşünüyor sırasında Ollama kapatıldı | Hata mesajı gösterilir, kilitlenme olmaz | Geçti. Bağlantı kopması yakalandı, [Sistem] hata mesajı gösterildi, oyun kilitlenmedi. |
+| Ollama yeniden açıldı (H3) | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | Geçti. Oyun yeniden başlatılmadan servis yanıt vermeye devam etti. |
+| Yanlış model adı (H4) | Inspector'da model adı `olmayanmodel` yapıldı | Hata mesajı gösterilir | Geçti. [Sistem] Model bulunamadı... mesajı gösterildi, oyun donmadı. |
+| Zaman aşımı (H5) | Zaman aşımı değeri 1 sn yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | Geçti. 1 sn dolunca [Sistem] Yanıt zaman aşımına uğradı... mesajı gösterildi, girdi kutusu yeniden açıldı. |
+| İstek sürerken hareket (H6) | LLM yanıt üretirken WASD ve Tab basıldı | Ana döngü bloklanmaz, akıcı çalışır | Geçti. Oyun takılmadı, ~77 FPS akıcılık korundu. |
+| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tıklandı | Komut yok sayılır, uyarı loglanır | Geçti. Komut güvenle yok sayıldı, Fındık Idle durumuna döndü. |
 ## Hata Yönetimi
 
 - **Ollama erişilemez / bağlantı hatası:** `OllamaClient` istek sonucunu kontrol eder, başarısızsa `NpcResult.Fail` döndürür. `DialogueManager` bunu arayüzde hata mesajı olarak gösterir; oyun, hareket ve görevler çalışmaya devam eder.
 - **Zaman aşımı:** İstek 60 sn sonra iptal edilir ve aynı yolla hata olarak ele alınır.
 - **Geçersiz JSON / beklenmeyen karar:** `NpcResponseParser` yanıtı doğrular; geçersiz yanıt oyun durumunu değiştirmez.
-- **Hata mesajı NPC cümlesi değildir.** Hata durumunda Basri Amca adına uydurulmuş bir cevap gösterilmez, yalnızca sistem hata mesajı görünür.
+- **Hata mesajı NPC cümlesi değildir.** Hata durumunda Basri Amca adına bir cevap gösterilmez. Hata türüne göre ayrı sistem mesajı gösterilir (model bulunamadı, Ollama’ya ulaşılamıyor, zaman aşımı, geçersiz yanıt gibi).
 - **Model uyarısı (warm-up):** Oyun açılırken model arka planda belleğe yüklenir; bu istek başarısız olsa bile oyunu etkilemez.
 - **Eksik atamalar:** Inspector bağlantıları eksikse (ör. UI, sahne referansları) ilgili bileşen `Debug.LogError` ile açık bir mesaj verir ve devre dışı kalır, oyun çökmez.
 - **Sahne geçişi:** Build listesinde olmayan sahneye geçiş denenirse hata loglanır, oyun kilitlenmez.
@@ -608,7 +606,7 @@ Görüntüler `docs/images/` klasöründedir.
 |------|--------|--------|
 | Yerel LLM entegrasyonu (OllamaClient, ayrıştırma), diyalog mantığı, doğrulama, prompt ve testleri | ✔ | |
 | Ana menü, karakter seçimi, giriş ara sahnesi, bitiş (kapı sekansı, Festival, final paneli) | ✔ | |
-| Kamera, görev listesi ve bildirimleri, oyuncu modeli ve animasyonu | | ✔ |
+| Kamera, görev listesi ve bildirimleri, oyuncu modeli ve animasyonu | ✔ | ✔ |
 | Fındık: NavMesh, FSM, Raycast sensörü, komut girişi | ✔ | |
 | Görev sistemi, görev nesneleri (köprü, ağaç, kedi, vana, yılan, çöp, şifalı ot) | | ✔ |
 | Sahne ve çevre tasarımı, Basri Amca modeli, diyalog arayüz iskeleti | | ✔ |
