@@ -577,6 +577,7 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 - Cevap süresi CPU ve belleğe bağlıdır. 8 GB RAM'li bilgisayarda Unity editörü açıkken cevaplar uzundur, hazır sürümde daha kısadır (bkz. [Performans](#performans)). Karar değiştiğinde tek mesaj için üç LLM isteği gerekebilir.
 - Basri Amca önceki mesajı hatırlamaz (bilinçli tercih, bkz. [Basri Amca](#basri-amca---yerel-llm-destekli-npc)).
 - Modelin kendi kararı (ham karar) nötr ve alakasız mesajlarda güvenilir değildir; doğru sonuç kural katmanına dayanır.
+- Küçük model Türkçe olumsuzlukları (ör. “getirmedim”) bazen yanlış yorumlar ve zaman zaman “siz” hitabı kullanır. Kural katmanı kapı kararını koruduğu için bu durumlar oyun akışını bozmaz, yalnızca cümle kalitesini düşürür.
 - Fındık yalnızca NavMesh'in kapsadığı alanda hareket eder; ulaşamadığı hedefi yok sayar.
 
 ### Olası Geliştirmeler
