@@ -506,7 +506,7 @@ Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanab
 | **Toplam** | — | **36** | **36** | **%100** | **5,0** | **1,3 / 8,4** |
 
 - **Engel aşma:** NavMesh üzerinde tam yolu bulunmayan 1 nokta algoritma tarafından güvenle elenmiş (atlanan: 1), oyun çökmemiş ve komut güvenle yok sayılmıştır.
-- **Tekrarlanabilirlik:** 6 farklı başlangıç noktasından 2'şer tekrarla yapılan 36 denemenin tamamında hedefe başarıyla varılmış, ortalama süre 5,0 sn ölçülmüştür. Rapor çıktıları `findik_test_sonuc.csv` ve `findik_test_sonuc.md` dosyalarına kaydedilmiştir.
+- **Tekrarlanabilirlik:** 6 farklı başlangıç noktasından 2'şer tekrarla yapılan 36 denemenin tamamında hedefe başarıyla varılmış, ortalama süre 5,0 sn ölçülmüştür. Rapor çıktıları `docs/findik_test_sonuc.csv` ve `docs/findik_test_sonuc.md` dosyalarına kaydedilmiştir.
 ### Örnek NPC Diyalogları
 
 Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır (Console'daki `[Dialogue]` satırından alınmıştır). Hazır cümle yoktur.
