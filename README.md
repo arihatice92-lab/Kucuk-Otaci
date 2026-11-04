@@ -496,7 +496,7 @@ Senaryolar oyun arayüzünden, gerçek Ollama ile denendi (ayrıntılı tablo: `
 Gözlem: küçük model nötr ve alakasız mesajlarda genellikle `OPEN_GATE` ya da karar dışı bir değer üretir. Kural katmanı bunu düzelttiği için kapı kararı modelin hatasına bağlı değildir.
 ### Otonom Ajan (Fındık) Testleri
 
-Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanabilir biçimde `CompanionTestRunner` ile ölçülmüştür[cite: 8]. Her hedef için sabit tohumlu (seed=42) başlangıç noktaları üretilmiş; Fındık bu noktalara ışınlanarak etkileşim başlatılmış ve tamamlanma süresi kaydedilmiştir[cite: 8].
+Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanabilir biçimde `CompanionTestRunner` ile ölçülmüştür . Her hedef için sabit tohumlu (seed=42) başlangıç noktaları üretilmiş; Fındık bu noktalara ışınlanarak etkileşim başlatılmış ve tamamlanma süresi kaydedilmiştir.
 
 | Hedef | Komut | Deneme | Başarılı | Başarı oranı | Ort. süre (sn) | En kısa / en uzun (sn) |
 |---|---|---|---|---|---|---|
@@ -506,28 +506,31 @@ Fındık'ın otonom davranışı farklı başlangıç konumlarından tekrarlanab
 | **Toplam** | — | **36** | **36** | **%100** | **5,0** | **1,3 / 8,4** |
 
 - **Engel aşma:** NavMesh üzerinde tam yolu bulunmayan 1 nokta algoritma tarafından güvenle elenmiş (atlanan: 1), oyun çökmemiş ve komut güvenle yok sayılmıştır.
-- **Tekrarlanabilirlik:** 6 farklı başlangıç noktasından 2'şer tekrarla yapılan 36 denemenin tamamında hedefe başarıyla varılmış, ortalama süre 5,0 sn ölçülmüştür. Rapor çıktıları `findik_test_sonuc.csv` ve `findik_test_sonuc.md` dosyalarına kaydedilmiştir[cite: 8].
+- **Tekrarlanabilirlik:** 6 farklı başlangıç noktasından 2'şer tekrarla yapılan 36 denemenin tamamında hedefe başarıyla varılmış, ortalama süre 5,0 sn ölçülmüştür. Rapor çıktıları `findik_test_sonuc.csv` ve `findik_test_sonuc.md` dosyalarına kaydedilmiştir.
 ### Örnek NPC Diyalogları
 
 Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır (Console'daki `[Dialogue]` satırından alınmıştır). Hazır cümle yoktur.
 
 | # | Senaryo | Oyuncu mesajı | HAM karar | FINAL karar | Basri Amca'nın cevabı | Süre (sn) |
 |---|---------|---------------|-----------|-------------|-----------------------|-----------|
-| 1 | Normal selam | Günaydın amca, köye girebilir miyim?[cite: 7] | REFUSE | ASK_MORE[cite: 7] | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?"[cite: 7] | ~14 sn |
-| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam![cite: 7] | REFUSE[cite: 7] | REFUSE[cite: 7] | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?"[cite: 7] | ~12 sn |
-| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.[cite: 7] | OPEN_GATE[cite: 7] | ASK_MORE[cite: 7] | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin." | ~28 sn (yeniden üretim) |
-| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım.[cite: 7] | OPEN_GATE[cite: 7] | OPEN_GATE[cite: 7] | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
+| 1 | Normal selam | Günaydın amca, köye girebilir miyim?| REFUSE | ASK_MORE  | "Köye girmek istediğini bilmiyorum ama neden buraya geldiğini anlamak istiyorum. Ne işin var?"  | ~14 sn |
+| 2 | Hakaret | Çekil önümden ihtiyar, seninle uğraşamam!  | REFUSE  | REFUSE  | "Başka bir şey söyle! Benimle uğraşıyorsun mu? Bu köye gelmek için neyin var?"| ~12 sn |
+| 3 | İkna edici ama görev eksik | Hasat Şenliği'ne yardıma geldim, şifalı ot topladım.| OPEN_GATE  | ASK_MORE  | "Şenlik için yardım güzel ama yoldaki yılan hâlâ tehlike saçıyor, önce onu halletmelisin."| ~28 sn (yeniden üretim) |
+| 4 | Tüm görevler tamam, ikna edici | Hasat Şenliği'ne yardıma geldim, bütün engelleri aştım ve otları topladım. | OPEN_GATE  | OPEN_GATE  | "Ah, harika! Ormanı temizleyip şenliğe yetiştin evladım. Kapıyı açıyorum, hoş geldin!" | ~16 sn |
+| 5 | Alakasız soru | Bugün hava çok güzel, pizza sever misin? | REFUSE | ASK_MORE | "Pizza severim dedim ama bu havada daha iyi bir şey yemek istemem."| 50,5 sn (yeniden üretim)|
+
+**Gözlem:** Alakasız soru senaryosunda model oyuncunun sorusunu yanıtladı; sistem promptundaki konuyu köye geliş amacına yönlendirme kuralını bu denemede izlemedi. Unity kararı `ASK_MORE` olarak doğruladı ve kapı açılmadı.
 
 ### Hata senaryoları
 | Senaryo | Nasıl denendi | Beklenen davranış | Sonuç |
 |---------|---------------|-------------------|-------|
-| Ollama kapalı (H1) | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | Geçti. "Basri Amca şu anda cevap veremiyor." mesajı çıktı, Fındık ve oyuncu hareketine devam etti. |
-| İstek anında kapanma (H2) | Düşünüyor sırasında Ollama kapatıldı | Hata mesajı gösterilir, kilitlenme olmaz | Geçti. Bağlantı kopması yakalandı, fallback hata mesajı gösterildi. |
-| Ollama yeniden açıldı (H3) | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | Geçti. Oyun yeniden başlatılmadan servis yanıt vermeye devam etti. |
-| Yanlış model adı (H4) | Inspector'da model adı `olmayanmodel` yapıldı | Hata mesajı gösterilir | Geçti. Model bulunamadı hatası yakalandı, oyun donmadı. |
-| Zaman aşımı (H5) | Zaman aşımı değeri 1 sn yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | Geçti. 1 sn dolunca düşünüyor kapandı, arayüz kilidi açıldı. |
-| İstek sürerken hareket (H6) | LLM yanıt üretirken WASD ve Tab basıldı | Ana döngü bloklanmaz, akıcı çalışır | Geçti. Oyun takılmadı, ~77 FPS akıcılık korundu. |
-| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tıklandı | Komut yok sayılır, uyarı loglanır | Geçti. Komut güvenle yok sayıldı, Fındık Idle durumuna döndü. |
+| Ollama kapalı (H1) | Ollama'dan çıkıldı, mesaj gönderildi | Hata mesajı gösterilir, oyun çökmez, hareket sürer | Geçti. "Basri Amca şu anda cevap veremiyor." mesajı çıktı, Fındık ve oyuncu hareketine devam etti.|
+| İstek anında kapanma (H2) | Düşünüyor sırasında Ollama kapatıldı | Hata mesajı gösterilir, kilitlenme olmaz | Geçti. Bağlantı kopması yakalandı, fallback hata mesajı gösterildi.|
+| Ollama yeniden açıldı (H3) | Oyun kapatılmadan tekrar mesaj gönderildi | Normal cevap gelir | Geçti. Oyun yeniden başlatılmadan servis yanıt vermeye devam etti.|
+| Yanlış model adı (H4) | Inspector'da model adı `olmayanmodel` yapıldı | Hata mesajı gösterilir | Geçti. Model bulunamadı hatası yakalandı, oyun donmadı.|
+| Zaman aşımı (H5) | Zaman aşımı değeri 1 sn yapıldı | Hata mesajı gösterilir, girdi kutusu yeniden açılır | Geçti. 1 sn dolunca düşünüyor kapandı, arayüz kilidi açıldı.|
+| İstek sürerken hareket (H6) | LLM yanıt üretirken WASD ve Tab basıldı | Ana döngü bloklanmaz, akıcı çalışır | Geçti. Oyun takılmadı, ~77 FPS akıcılık korundu.|
+| Fındık: ulaşılamayan hedef | Yürünemez bir noktaya sağ tıklandı | Komut yok sayılır, uyarı loglanır | Geçti. Komut güvenle yok sayıldı, Fındık Idle durumuna döndü.|
 
 ## Hata Yönetimi
 
@@ -549,7 +552,7 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 
 | Test | Sonuç |
 |------|-------|
-| Cevap beklerken kamera döndürme / yürüme | Arayüz donmuyor, ana iş parçacığı serbest, ortalama 70–80 FPS akıcılık korunuyor. |
+| Cevap beklerken kamera döndürme / yürüme | Arayüz donmuyor, ana iş parçacığı serbest, ortalama 70–80 FPS akıcılık korunuyor.|
 
 ## Tasarım Prensipleri (OOP / SOLID)
 
