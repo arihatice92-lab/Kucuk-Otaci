@@ -634,7 +634,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 20, y: -58}
+  m_AnchoredPosition: {x: 20, y: -80}
   m_SizeDelta: {x: 450, y: 28}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &91260568
@@ -667,7 +667,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.21960783, g: 0.5235225, b: 0.8352941, a: 1}
+  m_fontColor: {r: 1, g: 0.6470588, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -684,8 +684,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -11916,8 +11916,8 @@ Camera:
   m_GameObject: {fileID: 1441249104}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.5647059, g: 0.9333334, b: 0.5647059, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -12030,7 +12030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 339613137}
-  offset: {x: 0, y: 6, z: -8}
+  offset: {x: 0, y: 3.6, z: -4.8}
   lookHeight: 1.2
   smoothSpeed: 10
   rotateLeftKey: 31

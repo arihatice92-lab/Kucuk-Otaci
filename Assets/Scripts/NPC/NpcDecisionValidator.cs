@@ -19,8 +19,8 @@ public static class NpcDecisionValidator
     "gelen yabancı", "yabancıyı", "yabancıya", "oyuncu", "karşındaki", "sistem", "prompt", "npc", "yapay zeka", "json", "talimat", "cümle kur", "kısa cümle", "kendi ağzınla", "kendi sözlerinle", "durum:", "aynen yaz", "bekçisin", "bekçisi", "huysuz", "şüpheci", "geleneksel", "özünde", "iyi niyetli"};
 
     private static readonly string[] OpenPhrases =
-{ "kapı açık", "kapıyı açıyorum", "kapıyı açtım", "içeri gir", "gir içeri", "geçebilirsin", "buyur gir" };
-
+{ "kapı açık", "kapıyı açıyorum", "kapıyı açtım", "içeri gir", "gir içeri", "geçebilirsin",
+      "buyur gir", "gel, içeri", "gel içeri", "içeri gel", "hoş geldin", "girebilirsin" };
     private static readonly string[] ClosedPhrases =
     { "açmam", "açmıyorum", "giremezsin", "girmek yok", "geçemezsin" };
 
@@ -29,7 +29,8 @@ public static class NpcDecisionValidator
         if (string.IsNullOrEmpty(dialogue)) return false;
 
         string d = dialogue.ToLower(Tr);
-        d = d.Replace("açık değil", "").Replace("açılmaz", ""); // "kapı açık değil" olumsuz, çelişki değil
+        d = d.Replace("açık değil", "").Replace("açılmaz", "")
+     .Replace("giremezsin", "").Replace("girmeni istemiyorum", "");
 
         var list = decision == NpcDecision.OpenGate ? ClosedPhrases : OpenPhrases;
         foreach (var p in list)
