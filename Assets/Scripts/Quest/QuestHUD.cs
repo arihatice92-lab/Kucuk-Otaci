@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Sorumluluk: Görev listesini ekranda gösterir. Tamamlanan görevler yeşil ve üstü çizili görünür.
+/// Sorumluluk: Görev listesini ekranda gösterir. Tamamlanan görevler yeşil görünür.
 /// Görev durumunu QuestManager'dan okur, kendisi görev tutmaz.
 /// </summary>
 public class QuestHUD : MonoBehaviour
@@ -45,7 +45,7 @@ public class QuestHUD : MonoBehaviour
             if (quests.IsCompleted(pair.Key))
             {
                 doneCount++;
-                text.AppendLine($"<color=#7CFC7C><s>{pair.Value}</s></color>");
+                text.AppendLine($"<color=#8DF2A0>• {pair.Value}</color>");
             }
             else
             {
