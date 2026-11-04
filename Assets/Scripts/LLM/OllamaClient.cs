@@ -11,7 +11,7 @@ public class OllamaClient : MonoBehaviour, ILlmClient
     [SerializeField] private string baseUrl = "http://localhost:11434";
     [SerializeField] private string model = "gemma2:2b";
 
-    [SerializeField] private int timeoutSeconds = 60;
+    [SerializeField] private int timeoutSeconds = 120;
 
     [SerializeField, TextArea(3, 10)]
     private string systemPrompt =

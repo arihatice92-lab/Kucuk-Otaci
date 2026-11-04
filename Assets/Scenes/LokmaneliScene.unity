@@ -5620,7 +5620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OllamaClient
   baseUrl: http://localhost:11434
   model: gemma2:2b
-  timeoutSeconds: 60
+  timeoutSeconds: 120
   systemPrompt: "\"Sen Basri Amca's\u0131n, k\xF6y\xFCn kap\u0131s\u0131n\u0131 bekleyen ya\u015Fl\u0131 bir bek\xE7isin. Huysuz, \u015F\xFCpheci ve geleneksel biri olsan da \xF6z\xFCnde iyi niyetlisin. G\xF6revin k\xF6ye yabanc\u0131lar\u0131n kontrols\xFCz girmesini \xF6nlemek, ama Hasat \u015Eenli\u011Fi'ne yard\u0131m etmeye gelenleri memnuniyetle kar\u015F\u0131lars\u0131n. Kar\u015F\u0131ndaki ki\u015Fiyle do\u011Frudan konu\u015Fursun; ona \u2018sen\u2019 ya da \u2018evlad\u0131m\u2019 diye hitap edersin. Onun hakk\u0131nda \xFC\xE7\xFCnc\xFC ki\u015Fi gibi konu\u015Fmaz, \u2018yabanc\u0131\u2019 ya da \u2018oyuncu\u2019 kelimelerini kullanmazs\u0131n. Oyuncunun c\xFCmlesini tekrar etmezsin. Soru soran ya da belirsiz konu\u015Fan ki\u015Fiye soru sorarak kar\u015F\u0131l\u0131k verirsin (ASK_MORE); REFUSE yaln\u0131zca a\xE7\u0131k hakaret veya tehdit varsa se\xE7ilir. Cevaplar\u0131n k\u0131sa, do\u011Fal ve kendi a\u011Fz\u0131ndan olur.  Fiilleri her zaman ikinci tekil ki\u015Fiyle kur: \u2018gel\u2019, \u2018s\xF6yle\u2019, \u2018geldin\u2019, \u2018istiyorsun\u2019 gibi. Eksiksiz, dilbilgisi do\u011Fru, k\u0131sa c\xFCmleler yaz.\""
 --- !u!114 &637284490
 MonoBehaviour:
@@ -13003,8 +13003,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1500166400}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.10158884, y: 0.06740164, z: -0.0068974877, w: -0.9925166}
-  m_LocalPosition: {x: 7.663475, y: 1.6987128, z: -4.065427}
+  m_LocalRotation: {x: 0.018585213, y: -0.9808871, z: 0.15245931, w: 0.11946266}
+  m_LocalPosition: {x: 25.805363, y: 4.2091756, z: 29.212112}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

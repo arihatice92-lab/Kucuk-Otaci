@@ -44,7 +44,7 @@ Küçük Otacı, Unity ve C# ile geliştirilen 3D bir macera oyunudur. Proje, ay
 
 Notlar:
 
-- Model adı, adres ve zaman aşımı `OllamaClient` bileşeninden (Inspector) değiştirilebilir (varsayılan: `gemma2:2b`, `http://localhost:11434`, 60 sn).
+- Model adı, adres ve zaman aşımı `OllamaClient` bileşeninden (Inspector) değiştirilebilir (varsayılan: `gemma2:2b`, `http://localhost:11434`, 120 sn).
 - Oyun CPU üzerinde çalışan yerel modele bağlıdır. En iyi süre için oyunu Unity editörü yerine hazır sürümle (build) çalıştırın ve diğer ağır uygulamaları kapatın (bkz. [Performans](#performans)).
 - Ollama kapalıysa oyun çökmez; Basri Amca için hata mesajı gösterilir ve oyun devam eder (bkz. [Hata Yönetimi](#hata-yönetimi)).
 
@@ -327,7 +327,7 @@ Kapı yalnızca LLM "aç" dediği için değil, görevler tamamlandığı için 
 
 Oyuncu kapıyı doğrudan açamaz. `VillageGate`, yalnızca `NpcController.OnGateShouldOpen` olayını dinler; bu olay da yalnızca doğrulanmış `OPEN_GATE` kararından sonra tetiklenir.
 
-LLM isteği `OllamaClient` içinde 60 saniyelik zaman aşımıyla çalışır. İstek sürerken arayüzde "Basri Amca düşünüyor..." metni gösterilir; cevap veya hata geldiğinde metin kapanır.
+LLM isteği `OllamaClient` içinde 120 saniyelik zaman aşımıyla çalışır. İstek sürerken arayüzde "Basri Amca düşünüyor..." metni gösterilir; cevap veya hata geldiğinde metin kapanır.
 
 Ek doğrulamalar:
 
@@ -533,7 +533,7 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 ## Hata Yönetimi
 
 - **Ollama erişilemez / bağlantı hatası:** `OllamaClient` istek sonucunu kontrol eder, başarısızsa `NpcResult.Fail` döndürür. `DialogueManager` bunu arayüzde hata mesajı olarak gösterir; oyun, hareket ve görevler çalışmaya devam eder.
-- **Zaman aşımı:** İstek 60 sn sonra iptal edilir ve aynı yolla hata olarak ele alınır.
+- **Zaman aşımı:** İstek 120 sn sonra iptal edilir ve aynı yolla hata olarak ele alınır.
 - **Geçersiz JSON / beklenmeyen karar:** `NpcResponseParser` yanıtı doğrular; geçersiz yanıt oyun durumunu değiştirmez.
 - **Hata mesajı NPC cümlesi değildir.** Hata durumunda Basri Amca adına bir cevap gösterilmez. Hata türüne göre ayrı sistem mesajı gösterilir (model bulunamadı, Ollama’ya ulaşılamıyor, zaman aşımı, geçersiz yanıt gibi).
 - **Model uyarısı (warm-up):** Oyun açılırken model arka planda belleğe yüklenir; bu istek başarısız olsa bile oyunu etkilemez.
@@ -545,7 +545,7 @@ Aşağıdaki cümleler Basri Amca'nın modelin ürettiği gerçek cevaplarıdır
 - **Arayüz donmaz.** LLM isteği `UnityWebRequest` ile bir coroutine içinde (`yield return SendWebRequest()`) gönderilir; ana iş parçacığı beklemez. İstek sürerken oyun döngüsü, animasyonlar, kamera ve Fındık çalışmaya devam eder.
 - **Çift istek önlenir.** İstek sürerken Gönder düğmesi ve metin kutusu kapatılır, "Basri Amca düşünüyor..." göstergesi açılır; cevap ya da hata gelince eski haline döner.
 - **Model önceden yüklenir.** Oyun başlarken `Warmup` isteği modeli belleğe alır, ilk gerçek cevap gecikmez. `keep_alive` ile model 30 dakika bellekte tutulur.
-- **Süre sınırı.** Her istek 60 sn zaman aşımına sahiptir, takılan istek oyunu kilitlemez.
+- **Süre sınırı.** Her istek 120 sn zaman aşımına sahiptir, takılan istek oyunu kilitlemez.
 - **Ölçümler** için [Performans](#performans) tablosuna bakınız.
 
 | Test | Sonuç |
