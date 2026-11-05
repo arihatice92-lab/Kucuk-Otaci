@@ -40,7 +40,7 @@ Küçük Otacı, Unity ve C# ile geliştirilen 3D bir macera oyunudur. Proje, ay
    ```
 2. Ollama'nın çalıştığını doğrulayın: tarayıcıda `http://localhost:11434` adresi "Ollama is running" yazmalıdır.
 3. **Unity ile çalıştırma:** Unity Hub'da proje klasörünü açın, `MainMenu` sahnesini açıp Play'e basın.
-4. **Hazır sürüm:** `Build/KucukOtaci.exe` dosyasını çalıştırın. Oyunu başlatmadan önce Ollama açık olmalıdır.
+4. **Hazır sürüm:** Unity'de File → Build ile oluşturulur.
 
 Notlar:
 
